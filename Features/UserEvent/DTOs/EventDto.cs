@@ -8,7 +8,6 @@ public record EventDto
     [Required(ErrorMessage = "UserEvent name cannot be empty.")]
     public required string EventName { get; init; }
 
-    [Required] 
     public string NormalizedEventName { get; init; } = string.Empty;
     
     [Required(ErrorMessage = "Start date cannot be empty.")]
