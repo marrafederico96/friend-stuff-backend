@@ -89,7 +89,7 @@ public partial class EventService(FriendStuffDbContext context) : IEventService
         }
         var eventFound = await
             context.Events
-                .FirstOrDefaultAsync(e => e.NormalizedEventName == userToAdd.NormalizedEventName && e.Admin != null && e.Admin.NormalizedUserName == normalizedAdminUsername) ?? throw new ArgumentException("Event not found");;
+                .FirstOrDefaultAsync(e => e.NormalizedEventName == userToAdd.NormalizedEventName && e.Admin != null && e.Admin.NormalizedUserName == normalizedAdminUsername) ?? throw new ArgumentException("Event not found");
 
 
         var newParticipant = new EventUser
@@ -107,7 +107,6 @@ public partial class EventService(FriendStuffDbContext context) : IEventService
     public async Task RemoveMember(AddMemberDto userToRemove)
     {
         var normalizedUsername = userToRemove.UserName.Trim().ToLowerInvariant();
-        var normalizedAdminUsername = userToRemove.AdminUsername.Trim().ToLowerInvariant();
      
         var userFound = await context.Users
             .Where(u => u.NormalizedUserName == normalizedUsername)

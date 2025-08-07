@@ -30,5 +30,7 @@ public class Event
     public User? Admin { get; set; }
     
     public ICollection<EventUser> Participants { get; set; } = [];
-    
+
+    public ICollection<Expense> Expenses { get; set; } = [];
+
 }

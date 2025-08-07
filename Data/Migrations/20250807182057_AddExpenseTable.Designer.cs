@@ -3,6 +3,7 @@ using System;
 using FriendStuffBackend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FriendStuffBackend.Data.Migrations
 {
     [DbContext(typeof(FriendStuffDbContext))]
-    partial class FriendStuffDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250807182057_AddExpenseTable")]
+    partial class AddExpenseTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -103,15 +106,9 @@ namespace FriendStuffBackend.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("event_id");
 
-                    b.Property<DateTime>("ExpenseDate")
-                        .HasColumnType("timestamp with time zone")
+                    b.Property<DateOnly>("ExpenseDate")
+                        .HasColumnType("date")
                         .HasColumnName("expense_date");
-
-                    b.Property<string>("ExpenseName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("text")
-                        .HasColumnName("expense_name");
 
                     b.Property<Guid>("PayerId")
                         .HasColumnType("uuid")

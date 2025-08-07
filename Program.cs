@@ -9,14 +9,18 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using DotNetEnv;
+using FriendStuffBackend.Features.ExpenseEvent;
+using FriendStuffBackend.Features.ExpenseEvent.ExpenseParticipant;
 
 var builder = WebApplication.CreateBuilder(args);
 
+Env.Load();
 var rsa = RSA.Create();
 var publicKey = Environment.GetEnvironmentVariable("public_key");
 if (string.IsNullOrWhiteSpace(publicKey))
 {
-    throw new InvalidOperationException("La variabile PUBLIC_KEY non è impostata.");
+    throw new InvalidOperationException("No PUBLIC_KEY found.");
 }
 rsa.ImportFromPem(publicKey);
 var rsaSecurityKey = new RsaSecurityKey(rsa);
@@ -69,6 +73,8 @@ builder.Services.AddScoped<IPasswordHasher<User>, BcryptPasswordHasher>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddScoped<IExpenseService, ExpenseService>();
+builder.Services.AddScoped<IExpenseParticipantService, ExpenseParticipantService>();
 
 var app = builder.Build();
 

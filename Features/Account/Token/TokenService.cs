@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using DotNetEnv;
 using FriendStuffBackend.Data;
 using FriendStuffBackend.Domain.Entities;
 using FriendStuffBackend.Features.Account.Token.DTOs;
@@ -28,10 +29,11 @@ public class TokenService(FriendStuffDbContext context) : ITokenService
         };
         var claimsIdentity = new ClaimsIdentity(claims, "Bearer");
 
+        Env.Load();
         var rsaPrivateKey = Environment.GetEnvironmentVariable("private_key");
         if (string.IsNullOrWhiteSpace(rsaPrivateKey))
         {
-            throw new InvalidOperationException("La variabile PRIVATE_KEY non è impostata.");
+            throw new InvalidOperationException("No PRIVATE_KEY found.");
         }
 
         // Create an RSA security key from the PEM content
@@ -64,7 +66,7 @@ public class TokenService(FriendStuffDbContext context) : ITokenService
     private async Task<Guid> GenerateRefreshToken(User user)
     {
         // Invalidate all previous refresh tokens for the user
-        user.RefreshTokens?.ToList().ForEach(t => t.IsValid = false);
+        user.RefreshTokens.ToList().ForEach(t => t.IsValid = false);
 
         // Create a new refresh token
         RefreshToken refreshToken = new()

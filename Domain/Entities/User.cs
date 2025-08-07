@@ -32,4 +32,8 @@ public class User
 
     public ICollection<EventUser> Events { get; set; } = [];
 
+    public ICollection<Expense> ExpensesPayed { get; set; } = [];
+
+    public ICollection<ExpenseParticipant> ExpenseParticipants { get; set; } = [];
+
 }
