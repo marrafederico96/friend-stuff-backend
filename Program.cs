@@ -12,10 +12,12 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Load public key
 var rsa = RSA.Create();
-const string publicKeyPath = "./Certs/public.pem";
-var publicKey = await File.ReadAllTextAsync(publicKeyPath);
+var publicKey = Environment.GetEnvironmentVariable("public_key");
+if (string.IsNullOrWhiteSpace(publicKey))
+{
+    throw new InvalidOperationException("La variabile PUBLIC_KEY non è impostata.");
+}
 rsa.ImportFromPem(publicKey);
 var rsaSecurityKey = new RsaSecurityKey(rsa);
 
@@ -25,7 +27,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAngularApp",
         policy =>
         {
-            policy.WithOrigins("http://localhost:4200") 
+            policy.WithOrigins("https://friendstuff.vercel.app") 
                 .AllowAnyHeader()
                 .AllowCredentials()
                 .AllowAnyMethod();

@@ -28,9 +28,11 @@ public class TokenService(FriendStuffDbContext context) : ITokenService
         };
         var claimsIdentity = new ClaimsIdentity(claims, "Bearer");
 
-        // Load the RSA private key from PEM file
-        const string rsaPrivateKeyPath = "./Certs/private.pem";
-        var rsaPrivateKey = await File.ReadAllTextAsync(rsaPrivateKeyPath);
+        var rsaPrivateKey = Environment.GetEnvironmentVariable("private_key");
+        if (string.IsNullOrWhiteSpace(rsaPrivateKey))
+        {
+            throw new InvalidOperationException("La variabile PRIVATE_KEY non è impostata.");
+        }
 
         // Create an RSA security key from the PEM content
         var rsa = RSA.Create();
