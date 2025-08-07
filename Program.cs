@@ -26,28 +26,16 @@ rsa.ImportFromPem(publicKey);
 var rsaSecurityKey = new RsaSecurityKey(rsa);
 
 //CORS origin
-//builder.Services.AddCors(options =>
-//{
-//   options.AddPolicy("AllowAngularApp",
-//        policy =>
-//       {
-//           policy.WithOrigins("https://friendstuff.vercel.app") 
-//              .AllowAnyHeader()
-//             .AllowCredentials()
-//            .AllowAnyMethod();
-//   });
-//});
-
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAngularLocalApp",
+   options.AddPolicy("AllowAngularApp",
         policy =>
-        {
-            policy.WithOrigins("http://localhost:4200") 
-                .AllowAnyHeader()
-                .AllowCredentials()
-                .AllowAnyMethod();
-        });
+       {
+           policy.WithOrigins("https://friendstuff.vercel.app")
+              .AllowAnyHeader()
+             .AllowCredentials()
+            .AllowAnyMethod();
+   });
 });
 
 //Authentication JWT
@@ -90,12 +78,11 @@ builder.Services.AddScoped<IExpenseParticipantService, ExpenseParticipantService
 
 var app = builder.Build();
 
-//app.UseCors("AllowAngularApp");
+app.UseCors("AllowAngularApp");
 
 if (app.Environment.IsDevelopment())
 {
   
-    app.UseCors("AllowAngularLocalApp");
     app.MapScalarApiReference();
     app.MapOpenApi();
 }
