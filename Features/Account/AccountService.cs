@@ -1,14 +1,15 @@
 using FriendStuffBackend.Data;
 using FriendStuffBackend.Domain.Entities;
-using FriendStuffBackend.Features.Auth.DTOs;
-using FriendStuffBackend.Features.Auth.Token;
-using FriendStuffBackend.Features.Auth.Token.DTOs;
+using FriendStuffBackend.Features.Account.DTOs;
+using FriendStuffBackend.Features.Account.Token;
+using FriendStuffBackend.Features.Account.Token.DTOs;
+using FriendStuffBackend.Features.UserEvent.DTOs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace FriendStuffBackend.Features.Auth;
+namespace FriendStuffBackend.Features.Account;
 
-public class AuthService(FriendStuffDbContext context, IPasswordHasher<User> passwordHasher, ITokenService tokenService) : IAuthService
+public class AccountService(FriendStuffDbContext context, IPasswordHasher<User> passwordHasher, ITokenService tokenService) : IAccountService
 {
     // Registers a new user in the system
     public async Task RegisterUser(RegisterDto registerData)
@@ -18,10 +19,10 @@ public class AuthService(FriendStuffDbContext context, IPasswordHasher<User> pas
         var normalizedUsername = registerData.UserName.Trim().ToLowerInvariant();
 
         // Check if a user already exists with the same normalized email or username
-        var user = await context.Users
+        var userExists = await context.Users
             .AnyAsync(user => user.Email == normalizedEmail || user.NormalizedUserName == normalizedUsername);
 
-        if (user)
+        if (userExists)
         {
             // If user already exists, throw an exception
             throw new ArgumentException("User already exists");
@@ -47,6 +48,7 @@ public class AuthService(FriendStuffDbContext context, IPasswordHasher<User> pas
     // Logs a user in and returns a token
     public async Task<TokenDto> LoginUser(LoginDto loginData)
     {
+        // Normalize the email: remove leading/trailing whitespace and convert to lowercase
         var normalizedEmail = loginData.Email.Trim().ToLowerInvariant();
 
         // Look for the user with the provided email, including their refresh tokens
@@ -64,7 +66,7 @@ public class AuthService(FriendStuffDbContext context, IPasswordHasher<User> pas
         }
 
         // Generate a new access token and refresh token for the user
-        var tokenData = await tokenService.GenerateToken(user);
+        var tokenData = await tokenService.GenerateToken(user.Email);
         TokenDto accessToken = new()
         {
             AccessToken = tokenData.AccessToken,
@@ -74,9 +76,10 @@ public class AuthService(FriendStuffDbContext context, IPasswordHasher<User> pas
     }
 
     // Logs the user out by invalidating all their refresh tokens
-    public async Task LogoutUser(UserInfoDto userInfoData)
+    public async Task LogoutUser(string email)
     {
-        var normalizedEmail = userInfoData.Email?.Trim().ToLowerInvariant();
+        // Normalize the email: remove leading/trailing whitespace and convert to lowercase
+        var normalizedEmail = email.Trim().ToLowerInvariant();
 
         // Find the user by email, including their refresh tokens
         var user = await context.Users
@@ -85,9 +88,74 @@ public class AuthService(FriendStuffDbContext context, IPasswordHasher<User> pas
             .FirstOrDefaultAsync() ?? throw new ArgumentException("User not found");
         
         // Mark all refresh tokens as invalid
-        user.RefreshTokens?.ToList().ForEach(t => t.IsValid = false);
+        user.RefreshTokens.ToList().ForEach(t => t.IsValid = false);
         
         // Save changes to update the token statuses in the database
         await context.SaveChangesAsync();
     }
+
+    public async Task<UserInfoDto> GetUserInfo(string email)
+    {
+        // Normalize the email: remove leading/trailing whitespace and convert to lowercase
+        var normalizedEmail = email.Trim().ToLowerInvariant();
+
+        // Find the user by email
+        var user = await context.Users
+            .Where(u => u.Email == normalizedEmail)
+            .Include(u => u.Events)
+            .ThenInclude(eu => eu.Event)
+            .ThenInclude(p => p.Participants)
+            .ThenInclude(eventUser => eventUser.Participant)
+            .Include(e => e.Events)
+            .ThenInclude(e => e.Event)
+            .ThenInclude(e => e.Admin)
+            .FirstOrDefaultAsync() ?? throw new ArgumentException("User not found");
+
+        var listEvent = user.Events
+            .Where(eu => eu.Event is { Admin: not null })
+            .Select(eu =>
+            {
+                if (eu.Event is { Admin: not null })
+                    return new EventDto
+                    {
+                        EventName = eu.Event.EventName,
+                        NormalizedEventName = eu.Event.NormalizedEventName,
+                        StartDate = eu.Event.StartDate,
+                        EndDate = eu.Event.EndDate,
+                        AdminEmail = eu.Event.Admin.Email,
+                        Participants = eu.Event.Participants.Select(p =>
+                        {
+                            if (p.Participant != null)
+                                return new EventUserDto
+                                {
+                                    UserName = p.Participant.UserName,
+                                    Role = p.UserRole
+                                };
+                            return null;
+                        }).ToList()
+                    };
+                return null;
+            })
+            .ToList();
+
+        
+        UserInfoDto userInfo = new()
+        {
+            Email = user.Email,
+            UserName = user.UserName,
+            Events = listEvent
+        };
+        return userInfo;
+    }
+
+    public async Task DeleteUser(string email)
+    {
+        var normalizedEmail = email.Trim().ToLowerInvariant();
+        var user = await context.Users
+            .FirstOrDefaultAsync(u => u.Email == normalizedEmail) ?? throw new ArgumentException("User not found");
+
+        context.Users.Remove(user);
+        await context.SaveChangesAsync();
+    }
+    
 }

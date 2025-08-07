@@ -3,19 +3,27 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using FriendStuffBackend.Data;
 using FriendStuffBackend.Domain.Entities;
-using FriendStuffBackend.Features.Auth.Token.DTOs;
+using FriendStuffBackend.Features.Account.Token.DTOs;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
-namespace FriendStuffBackend.Features.Auth.Token;
+namespace FriendStuffBackend.Features.Account.Token;
 
 public class TokenService(FriendStuffDbContext context) : ITokenService
 {
-    public async Task<TokenDto> GenerateToken(User user)
+    public async Task<TokenDto> GenerateToken(string email)
     {
+        var normalizedEmail = email.Trim().ToLowerInvariant();
+        var user = await context.Users
+                       .Where(user => user.Email == normalizedEmail)
+                       .Include(user => user.RefreshTokens)
+                       .FirstOrDefaultAsync() ??
+                   throw new ArgumentException("User not found");
         // Define claims for the user (username and role)
         var claims = new List<Claim>
         {
-            new(ClaimTypes.Name, user.UserName),
+            new(ClaimTypes.Name, user.NormalizedUserName),
+            new(ClaimTypes.Email, normalizedEmail),
             new(ClaimTypes.Role, "USER")
         };
         var claimsIdentity = new ClaimsIdentity(claims, "Bearer");
@@ -33,7 +41,7 @@ public class TokenService(FriendStuffDbContext context) : ITokenService
         SecurityTokenDescriptor securityTokenDescriptor = new()
         {
             Subject = claimsIdentity,
-            Expires = DateTime.UtcNow.AddHours(1), // Token valid for 1 hour
+            Expires = DateTime.UtcNow.AddMinutes(15), // Token valid for 15 minutes
             SigningCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.RsaSha256)
         };
 
@@ -72,4 +80,26 @@ public class TokenService(FriendStuffDbContext context) : ITokenService
 
         return refreshToken.TokenValue;
     }
+
+    public async Task<bool> CheckRefreshToken(string refreshToken) {
+            var token = await context.RefreshTokens
+                .Where(t => t.TokenValue.ToString() == refreshToken.Trim())
+                .FirstOrDefaultAsync();
+
+            if (token == null)
+                return false;
+
+            return token.IsValid && token.ExpireAt >= DateTime.UtcNow;
+    }
+
+    public async Task<string?> GetEmailByRefreshToken(string refreshToken)
+    {
+        var token = await context.RefreshTokens
+            .Where(t => t.TokenValue.ToString() == refreshToken.Trim())
+            .Include(t => t.User)
+            .FirstOrDefaultAsync() ?? throw new ArgumentException("Token not found");
+
+        return token.User?.Email;
+    }
+
 }

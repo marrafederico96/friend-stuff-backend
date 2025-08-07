@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace FriendStuffBackend.Features.Auth.Token.DTOs;
+namespace FriendStuffBackend.Features.Account.Token.DTOs;
 
 public record TokenDto
 {

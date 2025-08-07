@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace FriendStuffBackend.Features.Auth.DTOs;
+namespace FriendStuffBackend.Features.Account.DTOs;
 
 public record LoginDto
 {
@@ -9,6 +9,6 @@ public record LoginDto
     public required string Email { get; init; }
 
     [Required(ErrorMessage = "Password cannot be empty.")]
-    [MinLength(8, ErrorMessage = "Password must be at least 8 characters long")]
+    [MinLength(8, ErrorMessage = "Password must be at least 8 characters long.")]
     public required string Password { get; init; }
 }

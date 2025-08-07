@@ -1,11 +1,15 @@
 using System.ComponentModel.DataAnnotations;
+using FriendStuffBackend.Domain.Entities;
 
-namespace FriendStuffBackend.Features.Event.DTOs;
+namespace FriendStuffBackend.Features.UserEvent.DTOs;
 
 public record EventDto
 {
-    [Required(ErrorMessage = "Event name cannot be empty.")]
+    [Required(ErrorMessage = "UserEvent name cannot be empty.")]
     public required string EventName { get; init; }
+    
+    [Required]
+    public required string NormalizedEventName { get; init; }
     
     [Required(ErrorMessage = "Start date cannot be empty.")]
     public DateOnly StartDate { get; set; }
@@ -15,4 +19,6 @@ public record EventDto
     
     [Required(ErrorMessage = "Admin email required")]
     public required string AdminEmail { get; set; }
+
+    public List<EventUserDto?> Participants { get; set; } = [];
 }

@@ -1,7 +1,7 @@
 using FriendStuffBackend.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 
-namespace FriendStuffBackend.Features.Auth;
+namespace FriendStuffBackend.Features.Account;
 
 public class BcryptPasswordHasher : IPasswordHasher<User>
 {

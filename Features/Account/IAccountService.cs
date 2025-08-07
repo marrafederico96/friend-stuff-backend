@@ -1,31 +1,49 @@
-using FriendStuffBackend.Features.Auth.DTOs;
-using FriendStuffBackend.Features.Auth.Token.DTOs;
+using FriendStuffBackend.Features.Account.DTOs;
+using FriendStuffBackend.Features.Account.Token.DTOs;
 
-namespace FriendStuffBackend.Features.Auth;
+namespace FriendStuffBackend.Features.Account;
 
 /// <summary>
-/// Defines authentication-related operations.
+/// Defines operations related to user authentication and account management.
 /// </summary>
-public interface IAuthService
+public interface IAccountService
 {
     /// <summary>
     /// Registers a new user and stores their information in the database.
     /// </summary>
     /// <param name="registerData">An object containing the user's registration details.</param>
-    /// <returns>A task that represents the asynchronous registration operation.</returns>
+    /// <returns>A task representing the asynchronous registration operation.</returns>
     public Task RegisterUser(RegisterDto registerData);
 
     /// <summary>
-    /// Authenticates a user based on provided login credentials.
+    /// Authenticates a user based on the provided login credentials.
     /// </summary>
     /// <param name="loginData">An object containing the user's login credentials.</param>
-    /// <returns>A task that represents the asynchronous login operation, returning access and refresh tokens.</returns>
+    /// <returns>
+    /// A task representing the asynchronous login operation, returning a token object containing access and refresh tokens if successful.
+    /// </returns>
     public Task<TokenDto> LoginUser(LoginDto loginData);
 
     /// <summary>
-    /// Logs out the user by invalidating their active refresh tokens.
+    /// Logs out a user by invalidating their active refresh tokens.
     /// </summary>
-    /// <param name="userInfoData">An object containing the user's email address.</param>
-    /// <returns>A task that represents the asynchronous logout operation.</returns>
-    public Task LogoutUser(UserInfoDto userInfoData);
+    /// <param name="email">The email address of the user to be logged out.</param>
+    /// <returns>A task representing the asynchronous logout operation.</returns>
+    public Task LogoutUser(string email);
+
+    /// <summary>
+    /// Retrieves detailed information about a specific user.
+    /// </summary>
+    /// <param name="email">The email address of the user whose information is being requested.</param>
+    /// <returns>
+    /// A task representing the asynchronous operation, returning the user's information if found.
+    /// </returns>
+    public Task<UserInfoDto> GetUserInfo(string email);
+
+    /// <summary>
+    /// Deletes a specific user from the system.
+    /// </summary>
+    /// <param name="email">The email address of the user to delete.</param>
+    /// <returns>A task representing the asynchronous deletion operation.</returns>
+    public Task DeleteUser(string email);
 }
