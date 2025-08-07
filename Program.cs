@@ -12,10 +12,12 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Load public key
 var rsa = RSA.Create();
-const string publicKeyPath = "/etc/secrets/public_key";
-var publicKey = await File.ReadAllTextAsync(publicKeyPath);
+var publicKey = Environment.GetEnvironmentVariable("Public_key");
+if (string.IsNullOrWhiteSpace(publicKey))
+{
+    throw new InvalidOperationException("La variabile PUBLIC_KEY non è impostata.");
+}
 rsa.ImportFromPem(publicKey);
 var rsaSecurityKey = new RsaSecurityKey(rsa);
 
