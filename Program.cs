@@ -14,7 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Load public key
 var rsa = RSA.Create();
-const string publicKeyPath = "./Certs/public.pem";
+const string publicKeyPath = "etc/secrets/public_key";
 var publicKey = await File.ReadAllTextAsync(publicKeyPath);
 rsa.ImportFromPem(publicKey);
 var rsaSecurityKey = new RsaSecurityKey(rsa);
