@@ -13,7 +13,7 @@ using Scalar.AspNetCore;
 var builder = WebApplication.CreateBuilder(args);
 
 var rsa = RSA.Create();
-var publicKey = Environment.GetEnvironmentVariable("Public_key");
+var publicKey = Environment.GetEnvironmentVariable("public_key");
 if (string.IsNullOrWhiteSpace(publicKey))
 {
     throw new InvalidOperationException("La variabile PUBLIC_KEY non è impostata.");
