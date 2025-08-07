@@ -6,12 +6,6 @@ namespace FriendStuffBackend.Features.ExpenseEvent.DTOs;
 public record ExpenseParticipantDto
 {
     [Required(ErrorMessage = "Participants cannot be empty")]
-    public required List<SearchUserDto> ListParticipants = [];
-    
-    
-    
-    public required string EventName { get; set; }
-    
-    
-    
+    public required string UserName { get; set; }
+    public string? EventName { get; set; }
 }

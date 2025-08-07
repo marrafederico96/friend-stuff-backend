@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using FriendStuffBackend.Domain.Entities;
+using FriendStuffBackend.Features.ExpenseEvent.DTOs;
 
 namespace FriendStuffBackend.Features.UserEvent.DTOs;
 
@@ -20,4 +20,6 @@ public record EventDto
     public required string AdminEmail { get; set; }
 
     public List<EventUserDto?> Participants { get; set; } = [];
+
+    public List<ExpenseEventDto> ExpensesEvent { get; set; } = [];
 }

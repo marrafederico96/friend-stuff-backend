@@ -11,6 +11,8 @@ public record ExpenseEventDto
     [Range(0.01, double.MaxValue, ErrorMessage = "Amount must be greater than zero")]
     public required decimal Amount { get; set; }
     
-    public required string PayerEmail { get; set; }
+    public required string PayerUsername { get; set; }
     public required string EventName { get; set; }
+
+    public List<ExpenseParticipantDto> ExpenseParticipant { get; set; } = [];
 }

@@ -3,6 +3,7 @@ using FriendStuffBackend.Domain.Entities;
 using FriendStuffBackend.Features.Account.DTOs;
 using FriendStuffBackend.Features.Account.Token;
 using FriendStuffBackend.Features.Account.Token.DTOs;
+using FriendStuffBackend.Features.ExpenseEvent.DTOs;
 using FriendStuffBackend.Features.UserEvent.DTOs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -101,15 +102,51 @@ public class AccountService(FriendStuffDbContext context, IPasswordHasher<User> 
 
         // Find the user by email
         var user = await context.Users
-            .Where(u => u.Email == normalizedEmail)
-            .Include(u => u.Events)
-            .ThenInclude(eu => eu.Event)
-            .ThenInclude(p => p.Participants)
-            .ThenInclude(eventUser => eventUser.Participant)
-            .Include(e => e.Events)
-            .ThenInclude(e => e.Event)
-            .ThenInclude(e => e.Admin)
-            .FirstOrDefaultAsync() ?? throw new ArgumentException("User not found");
+                       .Where(u => u.Email == normalizedEmail)
+
+                       // Include gli eventi dell’utente
+                       .Include(u => u.Events)
+                       .ThenInclude(eu => eu.Event)
+
+                       // Include i partecipanti dell’evento, e i dettagli dell’utente partecipante
+                       .Include(u => u.Events)
+                       .ThenInclude(eu => eu.Event)
+                       .ThenInclude(e => e.Participants)
+                       .ThenInclude(ep => ep.Participant)
+
+                       // Include l’admin dell’evento
+                       .Include(u => u.Events)
+                       .ThenInclude(eu => eu.Event)
+                       .ThenInclude(e => e.Admin)
+
+                       // Include le spese dell’evento
+                       .Include(u => u.Events)
+                       .ThenInclude(eu => eu.Event)
+                       .ThenInclude(e => e.Expenses)
+
+                       // Include chi ha pagato ogni spesa
+                       .Include(u => u.Events)
+                       .ThenInclude(eu => eu.Event)
+                       .ThenInclude(e => e.Expenses)
+                       .ThenInclude(exp => exp.Payer)
+
+                       // Include i partecipanti di ogni spesa
+                       .Include(u => u.Events)
+                       .ThenInclude(eu => eu.Event)
+                       .ThenInclude(e => e.Expenses)
+                       .ThenInclude(exp => exp.Participants)
+                       .ThenInclude(expPart => expPart.Participant)
+
+                       // Include le spese dove l’utente è partecipante
+                       .Include(u => u.ExpenseParticipants)
+                       .ThenInclude(expPart => expPart.Expense)
+
+                       // Include le spese dove l’utente è il pagatore
+                       .Include(u => u.ExpensesPayed)
+
+                       .FirstOrDefaultAsync()
+                   ?? throw new ArgumentException("User not found");
+
 
         var listEvent = user.Events
             .Where(eu => eu.Event is { Admin: not null })
@@ -132,7 +169,29 @@ public class AccountService(FriendStuffDbContext context, IPasswordHasher<User> 
                                     Role = p.UserRole
                                 };
                             return null;
-                        }).ToList()
+                        }).ToList(),
+                        ExpensesEvent = eu.Event.Expenses.Select(ex =>
+                        {
+                            if (ex.Payer != null)
+                                return new ExpenseEventDto
+                                {
+                                    EventName = ex.ExpenseName,
+                                    Amount = ex.Amount,
+                                    PayerUsername = ex.Payer.NormalizedUserName,
+                                    ExpenseName = ex.ExpenseName,
+                                    ExpenseParticipant = ex.Participants.Where(p=> p.Participant != null)
+                                        .Select(p =>
+                                        {
+                                            if (p.Participant != null)
+                                                return new ExpenseParticipantDto
+                                                {
+                                                    UserName = p.Participant.UserName,
+                                                };
+                                            return null;
+                                        }).ToList()!
+                                };
+                            return null;
+                        }).ToList()                 
                     };
                 return null;
             })

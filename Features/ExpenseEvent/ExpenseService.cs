@@ -17,7 +17,7 @@ public partial class ExpenseService(FriendStuffDbContext context) : IExpenseServ
     
     public async Task AddExpense(ExpenseEventDto expenseData)
     {
-        var normalizedEmail = expenseData.PayerEmail.Trim().ToLowerInvariant();
+        var normalizedEmail = expenseData.PayerUsername.Trim().ToLowerInvariant();
         var normalizedEventName = MultipleDashes()
             .Replace(
                 InvalidChars().Replace(expenseData.EventName.TrimEnd().TrimStart(), "-"),
@@ -43,7 +43,7 @@ public partial class ExpenseService(FriendStuffDbContext context) : IExpenseServ
             Amount = expenseData.Amount,
             EventId = eventFound.EventId,
             ExpenseName = expenseData.ExpenseName,
-            PayerId = payer.Id
+            PayerId = payer.Id,
         };
 
         await context.Expenses.AddAsync(newExpense);
