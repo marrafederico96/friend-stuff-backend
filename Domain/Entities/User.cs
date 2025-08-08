@@ -28,7 +28,7 @@ public class User
     [Column("created_at")]
     public required DateTime CreatedAt { get; init; }
 
-    public ICollection<RefreshToken>? RefreshTokens { get; set; } = [];
+    public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
 
     public ICollection<EventUser> Events { get; set; } = [];
 

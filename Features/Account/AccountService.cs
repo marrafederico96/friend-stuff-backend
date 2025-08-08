@@ -89,12 +89,9 @@ public class AccountService(FriendStuffDbContext context, IPasswordHasher<User> 
             .FirstOrDefaultAsync() ?? throw new ArgumentException("User not found");
         
         // Mark all refresh tokens as invalid
-        if (user.RefreshTokens?.ToList() != null)
-        {
             user.RefreshTokens.ToList().ForEach(t => t.IsValid = false);
             // Save changes to update the token statuses in the database
             await context.SaveChangesAsync();
-        }
     }
 
     public async Task<UserInfoDto> GetUserInfo(string email)
