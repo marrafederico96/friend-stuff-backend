@@ -77,22 +77,24 @@ public class AccountService(FriendStuffDbContext context, IPasswordHasher<User> 
     }
 
     // Logs the user out by invalidating all their refresh tokens
-    public async Task LogoutUser(string email)
+    public async Task LogoutUser(SearchUserDto userName)
     {
         // Normalize the email: remove leading/trailing whitespace and convert to lowercase
-        var normalizedEmail = email.Trim().ToLowerInvariant();
+        var normalizedUsername = userName.UserName.Trim().ToLowerInvariant();
 
         // Find the user by email, including their refresh tokens
         var user = await context.Users
-            .Where(user => user.Email == normalizedEmail)
+            .Where(user => user.NormalizedUserName == normalizedUsername)
             .Include(user => user.RefreshTokens)
             .FirstOrDefaultAsync() ?? throw new ArgumentException("User not found");
         
         // Mark all refresh tokens as invalid
-        user.RefreshTokens.ToList().ForEach(t => t.IsValid = false);
-        
-        // Save changes to update the token statuses in the database
-        await context.SaveChangesAsync();
+        if (user.RefreshTokens?.ToList() != null)
+        {
+            user.RefreshTokens.ToList().ForEach(t => t.IsValid = false);
+            // Save changes to update the token statuses in the database
+            await context.SaveChangesAsync();
+        }
     }
 
     public async Task<UserInfoDto> GetUserInfo(string email)
@@ -104,44 +106,36 @@ public class AccountService(FriendStuffDbContext context, IPasswordHasher<User> 
         var user = await context.Users
                        .Where(u => u.Email == normalizedEmail)
 
-                       // Include gli eventi dell’utente
                        .Include(u => u.Events)
                        .ThenInclude(eu => eu.Event)
 
-                       // Include i partecipanti dell’evento, e i dettagli dell’utente partecipante
                        .Include(u => u.Events)
                        .ThenInclude(eu => eu.Event)
                        .ThenInclude(e => e.Participants)
                        .ThenInclude(ep => ep.Participant)
 
-                       // Include l’admin dell’evento
                        .Include(u => u.Events)
                        .ThenInclude(eu => eu.Event)
                        .ThenInclude(e => e.Admin)
 
-                       // Include le spese dell’evento
                        .Include(u => u.Events)
                        .ThenInclude(eu => eu.Event)
                        .ThenInclude(e => e.Expenses)
 
-                       // Include chi ha pagato ogni spesa
                        .Include(u => u.Events)
                        .ThenInclude(eu => eu.Event)
                        .ThenInclude(e => e.Expenses)
                        .ThenInclude(exp => exp.Payer)
 
-                       // Include i partecipanti di ogni spesa
                        .Include(u => u.Events)
                        .ThenInclude(eu => eu.Event)
                        .ThenInclude(e => e.Expenses)
                        .ThenInclude(exp => exp.Participants)
                        .ThenInclude(expPart => expPart.Participant)
 
-                       // Include le spese dove l’utente è partecipante
                        .Include(u => u.ExpenseParticipants)
                        .ThenInclude(expPart => expPart.Expense)
 
-                       // Include le spese dove l’utente è il pagatore
                        .Include(u => u.ExpensesPayed)
 
                        .FirstOrDefaultAsync()
@@ -170,7 +164,9 @@ public class AccountService(FriendStuffDbContext context, IPasswordHasher<User> 
                                 };
                             return null;
                         }).ToList(),
-                        ExpensesEvent = eu.Event.Expenses.Select(ex =>
+                        ExpensesEvent = eu.Event.Expenses
+                            .OrderByDescending(ex => ex.ExpenseDate)
+                            .Select(ex =>
                         {
                             if (ex.Payer != null)
                                 return new ExpenseEventDto

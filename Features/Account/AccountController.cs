@@ -101,25 +101,15 @@ public class AccountController(IAccountService accountService, ITokenService tok
     }
 
     [HttpPost]
-    [Authorize]
-    public async Task<IActionResult> Logout() {
+    public async Task<IActionResult> Logout([FromBody] SearchUserDto userName ) {
         try
         {
-            var email = User.FindFirst(ClaimTypes.Email)?.Value;
-            if (string.IsNullOrEmpty(email))
-            {
-                return Unauthorized(new { message = "Email claim missing." });
-            }
-            await accountService.LogoutUser(email);
+            await accountService.LogoutUser(userName);
             HttpContext.Response.Cookies.Delete("refresh_token", new CookieOptions
             {
                 Path = "/api/account/refresh"
             });
             return Ok();
-        }
-        catch (ArgumentException e)
-        {
-            return Unauthorized(new {message = e.Message});
         } catch (Exception)
         {
             return StatusCode(StatusCodes.Status500InternalServerError, new {message ="Internal Error."});
