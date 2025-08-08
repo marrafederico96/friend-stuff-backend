@@ -30,11 +30,7 @@ public class TokenService(FriendStuffDbContext context) : ITokenService
         var claimsIdentity = new ClaimsIdentity(claims, "Bearer");
 
         Env.Load();
-        var rsaPrivateKey = Environment.GetEnvironmentVariable("private_key");
-        if (string.IsNullOrWhiteSpace(rsaPrivateKey))
-        {
-            throw new InvalidOperationException("No PRIVATE_KEY found.");
-        }
+        var rsaPrivateKey = Environment.GetEnvironmentVariable("PRIVATE_KEY");
 
         // Create an RSA security key from the PEM content
         var rsa = RSA.Create();

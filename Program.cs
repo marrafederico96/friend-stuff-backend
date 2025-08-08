@@ -17,11 +17,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 Env.Load();
 var rsa = RSA.Create();
-var publicKey = Environment.GetEnvironmentVariable("public_key");
-if (string.IsNullOrWhiteSpace(publicKey))
-{
-    throw new InvalidOperationException("No PUBLIC_KEY found.");
-}
+var publicKey = Environment.GetEnvironmentVariable("PUBLIC_KEY");
+
 rsa.ImportFromPem(publicKey);
 var rsaSecurityKey = new RsaSecurityKey(rsa);
 
@@ -31,7 +28,7 @@ builder.Services.AddCors(options =>
    options.AddPolicy("AllowAngularApp",
         policy =>
        {
-           policy.WithOrigins("https://friendstuff.vercel.app")
+           policy.WithOrigins(Environment.GetEnvironmentVariable("URL") ?? throw new InvalidOperationException())
               .AllowAnyHeader()
              .AllowCredentials()
             .AllowAnyMethod();
