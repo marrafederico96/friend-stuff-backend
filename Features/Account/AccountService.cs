@@ -76,6 +76,24 @@ public class AccountService(FriendStuffDbContext context, IPasswordHasher<User> 
         return accessToken; // Return the token to the client
     }
 
+    // Logs the user out by invalidating all their refresh tokens
+    public async Task LogoutUser(SearchUserDto userName)
+    {
+        // Normalize the email: remove leading/trailing whitespace and convert to lowercase
+        var normalizedUsername = userName.UserName.Trim().ToLowerInvariant();
+
+        // Find the user by userName, including their refresh tokens
+        var user = await context.Users
+            .Where(user => user.NormalizedUserName == normalizedUsername)
+            .Include(user => user.RefreshTokens)
+            .FirstOrDefaultAsync() ?? throw new ArgumentException("User not found");
+        
+        // Mark all refresh tokens as invalid
+        user.RefreshTokens.ToList().ForEach(t => t.IsValid = false);
+        // Save changes to update the token statuses in the database
+        await context.SaveChangesAsync();
+    }
+
     public async Task<UserInfoDto> GetUserInfo(string email)
     {
         // Normalize the email: remove leading/trailing whitespace and convert to lowercase

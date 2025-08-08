@@ -63,8 +63,6 @@ public class TokenService(FriendStuffDbContext context) : ITokenService
     {
         // Invalidate all previous refresh tokens for the user
         user.RefreshTokens.ToList().ForEach(t => t.IsValid = false);
-        var tokens = user.RefreshTokens.Where(t => t.IsValid == false).ToList();
-        context.RefreshTokens.RemoveRange(tokens);
         
         // Create a new refresh token
         RefreshToken refreshToken = new()
