@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using FriendStuffBackend.Features.UserEvent.DTOs;
 
 namespace FriendStuffBackend.Features.Account.DTOs;

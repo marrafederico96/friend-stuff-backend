@@ -61,8 +61,6 @@ public class TokenService(FriendStuffDbContext context) : ITokenService
 
     private async Task<Guid> GenerateRefreshToken(User user)
     {
-        // Invalidate all previous refresh tokens for the user
-        user.RefreshTokens.ToList().ForEach(t => t.IsValid = false);
         
         // Create a new refresh token
         RefreshToken refreshToken = new()
