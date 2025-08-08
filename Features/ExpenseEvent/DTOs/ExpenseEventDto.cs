@@ -14,5 +14,6 @@ public record ExpenseEventDto
     public required string PayerUsername { get; set; }
     public required string EventName { get; set; }
 
-    public List<ExpenseParticipantDto> ExpenseParticipant { get; set; } = [];
+    [Required(ErrorMessage = "Expense participant cannot be empty")]
+    public required List<ExpenseParticipantDto> ExpenseParticipant { get; set; }
 }

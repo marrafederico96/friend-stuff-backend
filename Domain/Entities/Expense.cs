@@ -31,6 +31,6 @@ public class Expense
     [ForeignKey("PayerId")]
     public User? Payer { get; set; }
     
-    public ICollection<ExpenseParticipant> Participants { get; set; } = [];
+    public ICollection<ExpenseParticipant>? Participants { get; set; }
     
 }

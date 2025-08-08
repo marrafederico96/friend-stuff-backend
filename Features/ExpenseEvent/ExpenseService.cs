@@ -24,7 +24,7 @@ public partial class ExpenseService(FriendStuffDbContext context) : IExpenseServ
                 "-"
             )
             .Trim('-').ToLowerInvariant();
-        
+
         var payer = await context.Users
             .Where(u => u.Email == normalizedEmail)
             .Include(p => p.Events)
@@ -45,7 +45,22 @@ public partial class ExpenseService(FriendStuffDbContext context) : IExpenseServ
             ExpenseName = expenseData.ExpenseName,
             PayerId = payer.Id,
         };
+        
+        if ( expenseData.ExpenseParticipant.Count != 0)
+        {
+            var participantUsername = expenseData.ExpenseParticipant.Select(p => p.UserName).ToList();
+            var participants = await context.Users.Where(u => participantUsername.Contains(u.UserName))
+                .ToListAsync();
 
+            foreach (var participant in participants)
+            {
+                newExpense.Participants?.Add(new Domain.Entities.ExpenseParticipant
+                {
+                    ParticipantId = participant.Id,
+                    ExpenseId = newExpense.Id
+                });
+            }
+        }
         await context.Expenses.AddAsync(newExpense);
         await context.SaveChangesAsync();
     }
