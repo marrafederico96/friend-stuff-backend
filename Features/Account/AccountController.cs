@@ -100,22 +100,6 @@ public class AccountController(IAccountService accountService, ITokenService tok
 
     }
 
-    [HttpPost]
-    public async Task<IActionResult> Logout([FromBody] SearchUserDto userName ) {
-        try
-        {
-            await accountService.LogoutUser(userName);
-            HttpContext.Response.Cookies.Delete("refresh_token", new CookieOptions
-            {
-                Path = "/api/account/refresh"
-            });
-            return Ok();
-        } catch (Exception)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, new {message ="Internal Error."});
-        }
-    }
-
     [HttpGet]
     [Authorize]
     public async Task<IActionResult> GetUser() {
