@@ -35,6 +35,7 @@ builder.Services.AddCors(options =>
 });
 
 //Authentication JWT
+var issuer = Environment.GetEnvironmentVariable(("JWT_ISSUER"));
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -42,7 +43,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = rsaSecurityKey,
-            ValidateIssuer = false,
+            ValidateIssuer = true,
+            ValidIssuer = issuer,
             ValidateAudience = false,
             ValidateLifetime = true,
         };

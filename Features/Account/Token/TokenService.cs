@@ -38,10 +38,12 @@ public class TokenService(FriendStuffDbContext context) : ITokenService
         rsa.ImportFromPem(rsaPrivateKey);
         var securityKey = new RsaSecurityKey(rsa);
 
+        var issuer = Environment.GetEnvironmentVariable(("JWT_ISSUER"));
         // Describe the token parameters
         SecurityTokenDescriptor securityTokenDescriptor = new()
         {
             Subject = claimsIdentity,
+            Issuer = issuer,
             Expires = DateTime.UtcNow.AddMinutes(15), // Token valid for 15 minutes
             SigningCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.RsaSha256)
         };
