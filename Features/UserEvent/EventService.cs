@@ -37,7 +37,7 @@ public partial class EventService(FriendStuffDbContext context) : IEventService
             .FirstOrDefaultAsync() ?? throw new ArgumentException("Admin not found.");
         
         var eventExists = await context.Events
-            .AnyAsync(e => e.Admin != null && e.Admin.Email == normalizedEmail && e.EventName == normalizedEventName );
+            .AnyAsync(e => e.Admin != null && e.Admin.Email == normalizedEmail && e.NormalizedEventName == normalizedEventName );
         if (eventExists)
         {
             throw new ArgumentException("User event already exists.");
