@@ -20,7 +20,7 @@ public interface IEventService
     Task CreateEvent(EventDto eventData);
 
 
-    public Task<string> SearchUser(SearchUserDto username);
+    public Task<string> SearchUser(UserNameDto username);
 
     public  Task AddMember(AddMemberDto userToAdd);
     

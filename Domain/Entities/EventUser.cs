@@ -8,20 +8,20 @@ namespace FriendStuffBackend.Domain.Entities;
 public class EventUser
 {
     [Key] 
-    public Guid EventUserId { get; set; }
+    public Guid EventUserId { get; init; }
     
     [Column("event_id")]
-    public Guid EventId { get; set; }
+    public Guid EventId { get; init; }
     
     [Column("participant_id")]
-    public Guid ParticipantId { get; set; }
+    public Guid ParticipantId { get; init; }
     
     [Column("user_role")]
-    public EventUserRole UserRole { get; set; }
+    public EventUserRole UserRole { get; init; }
 
     [ForeignKey("EventId")] 
-    public Event? Event { get; set; }
+    public Event Event { get; init; }
 
     [ForeignKey("ParticipantId")] 
-    public User? Participant { get; set; }
+    public User Participant { get; init; }
 }

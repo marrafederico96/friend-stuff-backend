@@ -11,7 +11,6 @@ using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using DotNetEnv;
 using FriendStuffBackend.Features.ExpenseEvent;
-using FriendStuffBackend.Features.ExpenseEvent.ExpenseParticipant;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -70,7 +69,6 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
-builder.Services.AddScoped<IExpenseParticipantService, ExpenseParticipantService>();
 
 var app = builder.Build();
 

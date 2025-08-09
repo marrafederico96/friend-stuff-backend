@@ -30,7 +30,7 @@ public class EventController(IEventService eventService) : ControllerBase
 
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> Search([FromBody] SearchUserDto username)
+    public async Task<IActionResult> Search([FromBody] UserNameDto username)
     {
         try
         {

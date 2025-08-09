@@ -11,26 +11,26 @@ public class Event
     
     [Column("event_name", TypeName = "text")]
     [MaxLength(100)]
-    public required string EventName { get; set; }
+    public required string EventName { get; init; }
 
     [Column("normalized_event_name", TypeName = "text")]
     [MaxLength(100)]
-    public required string NormalizedEventName { get; set; }
+    public required string NormalizedEventName { get; init; }
     
     [Column("start_date")]
-    public DateOnly StartDate { get; set; }
+    public DateOnly StartDate { get; init; }
     
     [Column("end_date")]
-    public DateOnly EndDate { get; set; }
+    public DateOnly EndDate { get; init; }
     
     [Column("admin_id")]
-    public Guid AdminId { get; set; }
+    public Guid AdminId { get; init; }
 
     [ForeignKey("AdminId")] 
-    public User? Admin { get; set; }
+    public User? Admin { get; init; }
     
-    public ICollection<EventUser> Participants { get; set; } = [];
+    public ICollection<EventUser> Participants { get; init; } = [];
 
-    public ICollection<Expense> Expenses { get; set; } = [];
+    public ICollection<Expense> Expenses { get; init; } = [];
 
 }

@@ -20,6 +20,7 @@ public class TokenService(FriendStuffDbContext context) : ITokenService
                        .Include(user => user.RefreshTokens)
                        .FirstOrDefaultAsync() ??
                    throw new ArgumentException("User not found");
+        
         // Define claims for the user (username and role)
         var claims = new List<Claim>
         {
@@ -55,13 +56,11 @@ public class TokenService(FriendStuffDbContext context) : ITokenService
             AccessToken = tokenHandler.WriteToken(token),
             RefreshToken = await GenerateRefreshToken(user)
         };
-
         return tokenData;
     }
 
     private async Task<Guid> GenerateRefreshToken(User user)
     {
-        
         // Create a new refresh token
         RefreshToken refreshToken = new()
         {

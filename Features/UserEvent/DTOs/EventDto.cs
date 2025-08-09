@@ -19,7 +19,7 @@ public record EventDto
     [Required(ErrorMessage = "Admin email required")]
     public required string AdminEmail { get; set; }
 
-    public List<EventUserDto?> Participants { get; set; } = [];
+    public List<EventUserDto> Participants { get; set; } = [];
 
-    public List<ExpenseEventDto> ExpensesEvent { get; set; } = [];
+    public List<ExpenseEventDto?> ExpensesEvent { get; set; } = [];
 }

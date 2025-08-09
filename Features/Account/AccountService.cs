@@ -68,21 +68,16 @@ public class AccountService(FriendStuffDbContext context, IPasswordHasher<User> 
 
         // Generate a new access token and refresh token for the user
         var tokenData = await tokenService.GenerateToken(user.Email);
-        TokenDto accessToken = new()
-        {
-            AccessToken = tokenData.AccessToken,
-            RefreshToken = tokenData.RefreshToken
-        };
-        return accessToken; // Return the token to the client
+        return tokenData; // Return the token to the client
     }
 
     // Logs the user out by invalidating all their refresh tokens
-    public async Task LogoutUser(SearchUserDto userName)
+    public async Task LogoutUser(UserNameDto userNameName)
     {
         // Normalize the email: remove leading/trailing whitespace and convert to lowercase
-        var normalizedUsername = userName.UserName.Trim().ToLowerInvariant();
+        var normalizedUsername = userNameName.UserName.Trim().ToLowerInvariant();
 
-        // Find the user by userName, including their refresh tokens
+        // Find the userName by userNameName, including their refresh tokens
         var user = await context.Users
             .Where(user => user.NormalizedUserName == normalizedUsername)
             .Include(user => user.RefreshTokens)
@@ -140,10 +135,9 @@ public class AccountService(FriendStuffDbContext context, IPasswordHasher<User> 
 
 
         var listEvent = user.Events
-            .Where(eu => eu.Event is { Admin: not null })
             .Select(eu =>
             {
-                if (eu.Event is { Admin: not null })
+                if (eu.Event.Admin != null)
                     return new EventDto
                     {
                         EventName = eu.Event.EventName,
@@ -151,46 +145,40 @@ public class AccountService(FriendStuffDbContext context, IPasswordHasher<User> 
                         StartDate = eu.Event.StartDate,
                         EndDate = eu.Event.EndDate,
                         AdminEmail = eu.Event.Admin.Email,
-                        Participants = eu.Event.Participants.Select(p =>
+                        Participants = eu.Event.Participants.Select(p => new EventUserDto
                         {
-                            if (p.Participant != null)
-                                return new EventUserDto
-                                {
-                                    UserName = p.Participant.UserName,
-                                    Role = p.UserRole
-                                };
-                            return null;
+                            UserName = p.Participant.UserName,
+                            Role = p.UserRole
                         }).ToList(),
                         ExpensesEvent = eu.Event.Expenses
                             .OrderByDescending(ex => ex.ExpenseDate)
                             .Select(ex =>
-                        {
-                            if (ex.Payer != null)
-                                return new ExpenseEventDto
-                                {
-                                    EventName = ex.ExpenseName,
-                                    Amount = ex.Amount,
-                                    PayerUsername = ex.Payer.NormalizedUserName,
-                                    ExpenseName = ex.ExpenseName,
-                                    ExpenseParticipant = ex.Participants.Where(p=> p.Participant != null)
-                                        .Select(p =>
-                                        {
-                                            if (p.Participant != null)
-                                                return new ExpenseParticipantDto
-                                                {
-                                                    UserName = p.Participant.UserName,
-                                                };
-                                            return null;
-                                        }).ToList()!
-                                };
-                            return null;
-                        }).ToList()                 
+                            {
+                                if (ex.Payer != null)
+                                    return new ExpenseEventDto
+                                    {
+                                        EventName = ex.ExpenseName,
+                                        Amount = ex.Amount,
+                                        PayerUsername = ex.Payer.NormalizedUserName,
+                                        ExpenseName = ex.ExpenseName,
+                                        ExpenseParticipant = ex.Participants
+                                            .Select(p =>
+                                            {
+                                                if (p.Participant?.UserName != null)
+                                                    return new ExpenseParticipantDto
+                                                    {
+                                                        UserName = p.Participant.UserName,
+                                                    };
+                                                return null;
+                                            }).ToList()
+                                    };
+                                return null;
+                            }).ToList()
                     };
                 return null;
             })
             .ToList();
 
-        
         UserInfoDto userInfo = new()
         {
             Email = user.Email,
@@ -209,5 +197,4 @@ public class AccountService(FriendStuffDbContext context, IPasswordHasher<User> 
         context.Users.Remove(user);
         await context.SaveChangesAsync();
     }
-    
 }

@@ -7,18 +7,18 @@ namespace FriendStuffBackend.Domain.Entities;
 public class ExpenseParticipant
 {
     [Key]
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
     
     [Column("participant_id")]
-    public required Guid ParticipantId { get; set; }
+    public required Guid ParticipantId { get; init; }
     
     [Column("expense_id")]
-    public required Guid ExpenseId { get; set; }
+    public required Guid ExpenseId { get; init; }
     
     [ForeignKey("ParticipantId")]
-    public User? Participant { get; set; }
+    public User? Participant { get; init; }
     
     [ForeignKey(("ExpenseId"))]
-    public Expense? Expense { get; set; }
+    public Expense? Expense { get; init; }
     
 }

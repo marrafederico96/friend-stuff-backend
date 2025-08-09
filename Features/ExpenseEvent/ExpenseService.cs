@@ -31,7 +31,7 @@ public partial class ExpenseService(FriendStuffDbContext context) : IExpenseServ
             .ThenInclude(e => e.Event)
             .FirstOrDefaultAsync() ?? throw new ArgumentException("Payer not found");
 
-        var eventFound = payer.Events.FirstOrDefault(e => e.Event != null && e.Event.NormalizedEventName == normalizedEventName);
+        var eventFound = payer.Events.FirstOrDefault(e => e.Event.NormalizedEventName == normalizedEventName);
         if (eventFound == null)
         {
             throw new ArgumentException("Event not found");
@@ -48,16 +48,16 @@ public partial class ExpenseService(FriendStuffDbContext context) : IExpenseServ
         
         if ( expenseData.ExpenseParticipant.Count != 0)
         {
-            var participantUsername = expenseData.ExpenseParticipant.Select(p => p.UserName).ToList();
+            var participantUsername = expenseData.ExpenseParticipant.Select(p => p?.UserName).ToList();
             var participants = await context.Users.Where(u => participantUsername.Contains(u.UserName))
                 .ToListAsync();
 
             foreach (var participant in participants)
             {
-                newExpense.Participants?.Add(new Domain.Entities.ExpenseParticipant
+                newExpense.Participants.Add(new ExpenseParticipant
                 {
                     ParticipantId = participant.Id,
-                    ExpenseId = newExpense.Id
+                    ExpenseId = newExpense.Id,
                 });
             }
         }

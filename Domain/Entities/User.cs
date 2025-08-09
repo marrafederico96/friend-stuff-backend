@@ -11,15 +11,15 @@ public class User
     
     [Column("username", TypeName = "text")]
     [MaxLength(100)]
-    public required string UserName { get; set; }
+    public required string UserName { get; init; }
     
     [Column("email", TypeName = "text")]
     [MaxLength(100)]
-    public required string Email { get; set; }
+    public required string Email { get; init; }
     
     [Column("normalized_username", TypeName = "text")]
     [MaxLength(100)]
-    public required string NormalizedUserName { get; set; }
+    public required string NormalizedUserName { get; init; }
 
     [Column("password_hash", TypeName = "text")]
     [MaxLength(256)]
@@ -28,12 +28,12 @@ public class User
     [Column("created_at")]
     public required DateTime CreatedAt { get; init; }
 
-    public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
+    public ICollection<RefreshToken> RefreshTokens { get; init; } = [];
 
-    public ICollection<EventUser> Events { get; set; } = [];
+    public ICollection<EventUser> Events { get; init; } = [];
 
-    public ICollection<Expense> ExpensesPayed { get; set; } = [];
+    public ICollection<Expense> ExpensesPayed { get; init; } = [];
 
-    public ICollection<ExpenseParticipant> ExpenseParticipants { get; set; } = [];
+    public ICollection<ExpenseParticipant> ExpenseParticipants { get; init; } = [];
 
 }

@@ -101,10 +101,10 @@ public class AccountController(IAccountService accountService, ITokenService tok
     }
 
     [HttpPost]
-    public async Task<IActionResult> Logout([FromBody] SearchUserDto userName ) {
+    public async Task<IActionResult> Logout([FromBody] UserNameDto userNameName ) {
         try
         {
-            await accountService.LogoutUser(userName);
+            await accountService.LogoutUser(userNameName);
             HttpContext.Response.Cookies.Delete("refresh_token", new CookieOptions
             {
                 Path = "/api/account/refresh"

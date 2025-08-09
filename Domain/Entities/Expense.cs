@@ -13,24 +13,24 @@ public class Expense
     public required Guid EventId { get; init; }
     
     [Column("payer_id")]
-    public required Guid PayerId { get; set; }
+    public required Guid PayerId { get; init; }
     
     [Column("expense_name", TypeName = "text")]
     [MaxLength(100)]
-    public required string ExpenseName { get; set; }
+    public required string ExpenseName { get; init; }
     
     [Column("amount")]
-    public required decimal Amount { get; set; }
+    public required decimal Amount { get; init; }
     
     [Column("expense_date")]
-    public required DateTime ExpenseDate { get; set; }
+    public required DateTime ExpenseDate { get; init; }
     
     [ForeignKey("EventId")]
-    public Event? Event { get; set; }
-    
+    public Event? Event { get; init; }
+
     [ForeignKey("PayerId")]
-    public User? Payer { get; set; }
-    
-    public ICollection<ExpenseParticipant>? Participants { get; set; }
-    
+    public User? Payer { get; init; }
+
+    public ICollection<ExpenseParticipant> Participants { get; init; } = [];
+
 }

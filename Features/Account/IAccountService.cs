@@ -25,11 +25,11 @@ public interface IAccountService
     public Task<TokenDto> LoginUser(LoginDto loginData);
 
     /// <summary>
-    /// Logs out a user by invalidating their active refresh tokens.
+    /// Logs out a userName by invalidating their active refresh tokens.
     /// </summary>
-    /// <param name="userName">The username of the user to be logged out.</param>
+    /// <param name="userName">The username of the User to be logged out.</param>
     /// <returns>A task representing the asynchronous logout operation.</returns>
-    public Task LogoutUser(SearchUserDto userName);
+    public Task LogoutUser(UserNameDto userName);
 
     /// <summary>
     /// Retrieves detailed information about a specific user.
