@@ -20,8 +20,8 @@ public class EventUser
     public EventUserRole UserRole { get; init; }
 
     [ForeignKey("EventId")] 
-    public Event Event { get; init; }
+    public Event? Event { get; init; }
 
     [ForeignKey("ParticipantId")] 
-    public User Participant { get; init; }
+    public User? Participant { get; init; }
 }

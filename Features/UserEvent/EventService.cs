@@ -82,7 +82,7 @@ public partial class EventService(FriendStuffDbContext context) : IEventService
             .ThenInclude(e => e.Event)
             .FirstOrDefaultAsync() ?? throw new ArgumentException("User not found");
 
-        var result = userFound.Events.Any(e => e.Event.NormalizedEventName == userToAdd.NormalizedEventName);
+        var result = userFound.Events.Any(e => e.Event != null && e.Event.NormalizedEventName == userToAdd.NormalizedEventName);
         if (result)
         {
             throw new ArgumentException("User already added");
@@ -97,7 +97,6 @@ public partial class EventService(FriendStuffDbContext context) : IEventService
             EventId = eventFound.Id,
             ParticipantId = userFound.Id,
             UserRole = EventUserRole.Member,
-            Event = eventFound,
         };
 
         await context.EventUsers.AddAsync(newParticipant);
@@ -114,7 +113,7 @@ public partial class EventService(FriendStuffDbContext context) : IEventService
             .ThenInclude(e => e.Event)
             .FirstOrDefaultAsync() ?? throw new ArgumentException("User not found");
         
-        var result = userFound.Events.Any(e => e.Event.NormalizedEventName == userToRemove.NormalizedEventName);
+        var result = userFound.Events.Any(e => e.Event != null && e.Event.NormalizedEventName == userToRemove.NormalizedEventName);
         if (!result)
         {
             throw new ArgumentException("Event not found");

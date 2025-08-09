@@ -31,7 +31,7 @@ public partial class ExpenseService(FriendStuffDbContext context) : IExpenseServ
             .ThenInclude(e => e.Event)
             .FirstOrDefaultAsync() ?? throw new ArgumentException("Payer not found");
 
-        var eventFound = payer.Events.FirstOrDefault(e => e.Event.NormalizedEventName == normalizedEventName);
+        var eventFound = payer.Events.FirstOrDefault(e => e.Event != null && e.Event.NormalizedEventName == normalizedEventName);
         if (eventFound == null)
         {
             throw new ArgumentException("Event not found");

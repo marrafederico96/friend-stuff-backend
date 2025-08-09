@@ -137,7 +137,7 @@ public class AccountService(FriendStuffDbContext context, IPasswordHasher<User> 
         var listEvent = user.Events
             .Select(eu =>
             {
-                if (eu.Event.Admin != null)
+                if (eu.Event is { Admin: not null })
                     return new EventDto
                     {
                         EventName = eu.Event.EventName,
@@ -145,10 +145,15 @@ public class AccountService(FriendStuffDbContext context, IPasswordHasher<User> 
                         StartDate = eu.Event.StartDate,
                         EndDate = eu.Event.EndDate,
                         AdminEmail = eu.Event.Admin.Email,
-                        Participants = eu.Event.Participants.Select(p => new EventUserDto
+                        Participants = eu.Event.Participants.Select(p =>
                         {
-                            UserName = p.Participant.UserName,
-                            Role = p.UserRole
+                            if (p.Participant != null)
+                                return new EventUserDto
+                                {
+                                    UserName = p.Participant.UserName,
+                                    Role = p.UserRole
+                                };
+                            return null;
                         }).ToList(),
                         ExpensesEvent = eu.Event.Expenses
                             .OrderByDescending(ex => ex.ExpenseDate)
