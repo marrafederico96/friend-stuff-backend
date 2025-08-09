@@ -11,13 +11,13 @@ public record EventDto
     public string NormalizedEventName { get; init; } = string.Empty;
     
     [Required(ErrorMessage = "Start date cannot be empty.")]
-    public DateOnly StartDate { get; set; }
+    public DateOnly StartDate { get; init; }
     
     [Required(ErrorMessage = "End date cannot be empty.")]
-    public DateOnly EndDate { get; set; }
+    public DateOnly EndDate { get; init; }
     
     [Required(ErrorMessage = "Admin email required")]
-    public required string AdminEmail { get; set; }
+    public required string AdminEmail { get; init; }
 
     public List<EventUserDto?> Participants { get; set; } = [];
 

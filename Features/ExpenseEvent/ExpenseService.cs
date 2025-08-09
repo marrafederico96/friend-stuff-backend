@@ -45,6 +45,11 @@ public partial class ExpenseService(FriendStuffDbContext context) : IExpenseServ
             ExpenseName = expenseData.ExpenseName,
             PayerId = payer.Id,
         };
+
+        if (expenseData.ExpenseParticipant.Count == 0)
+        {
+            throw new ArgumentException("Participants required");
+        }
         
         if ( expenseData.ExpenseParticipant.Count != 0)
         {

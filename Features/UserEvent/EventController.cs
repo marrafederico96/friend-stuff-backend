@@ -20,7 +20,7 @@ public class EventController(IEventService eventService) : ControllerBase
         }
         catch (ArgumentException e)
         {
-            return Unauthorized(new { message = e.Message });
+            return BadRequest(new { message = e.Message });
         }
         catch (Exception)
         {
@@ -39,7 +39,7 @@ public class EventController(IEventService eventService) : ControllerBase
         }
         catch (ArgumentException e)
         {
-            return Unauthorized(new { message = e.Message });
+            return BadRequest(new { message = e.Message });
         }
         catch (Exception)
         {
@@ -49,16 +49,16 @@ public class EventController(IEventService eventService) : ControllerBase
     
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> Add([FromBody] AddMemberDto userToAdd)
+    public async Task<IActionResult> Add([FromBody] EventMemberDto userToEvent)
     {
         try
         {
-           await eventService.AddMember(userToAdd);
+           await eventService.AddMember(userToEvent);
             return Ok(new {message = "Member added"});
         }
         catch (ArgumentException e)
         {
-            return Unauthorized(new { message = e.Message });
+            return BadRequest(new { message = e.Message });
         }
         catch (Exception)
         {
@@ -67,16 +67,16 @@ public class EventController(IEventService eventService) : ControllerBase
     }
     [HttpDelete]
     [Authorize]
-    public async Task<IActionResult> Remove([FromBody] AddMemberDto userToAdd)
+    public async Task<IActionResult> Remove([FromBody] EventMemberDto userToEvent)
     {
         try
         {
-            await eventService.RemoveMember(userToAdd);
+            await eventService.RemoveMember(userToEvent);
             return Ok(new {message = "Member removed"});
         }
         catch (ArgumentException e)
         {
-            return Unauthorized(new { message = e.Message });
+            return BadRequest(new { message = e.Message });
         }
         catch (Exception)
         {

@@ -71,10 +71,10 @@ public partial class EventService(FriendStuffDbContext context) : IEventService
         return userFound.UserName;
     }
 
-    public async Task AddMember(AddMemberDto userToAdd)
+    public async Task AddMember(EventMemberDto userToEvent)
     {
-        var normalizedUsername = userToAdd.UserName.Trim().ToLowerInvariant();
-        var normalizedAdminUsername = userToAdd.AdminUsername.Trim().ToLowerInvariant();
+        var normalizedUsername = userToEvent.UserName.Trim().ToLowerInvariant();
+        var normalizedAdminUsername = userToEvent.AdminUsername.Trim().ToLowerInvariant();
         
         var userFound = await context.Users
             .Where(u => u.NormalizedUserName == normalizedUsername)
@@ -82,14 +82,14 @@ public partial class EventService(FriendStuffDbContext context) : IEventService
             .ThenInclude(e => e.Event)
             .FirstOrDefaultAsync() ?? throw new ArgumentException("User not found");
 
-        var result = userFound.Events.Any(e => e.Event != null && e.Event.NormalizedEventName == userToAdd.NormalizedEventName);
+        var result = userFound.Events.Any(e => e.Event != null && e.Event.NormalizedEventName == userToEvent.NormalizedEventName);
         if (result)
         {
             throw new ArgumentException("User already added");
         }
         var eventFound = await
             context.Events
-                .FirstOrDefaultAsync(e => e.NormalizedEventName == userToAdd.NormalizedEventName && e.Admin != null && e.Admin.NormalizedUserName == normalizedAdminUsername) ?? throw new ArgumentException("Event not found");
+                .FirstOrDefaultAsync(e => e.NormalizedEventName == userToEvent.NormalizedEventName && e.Admin != null && e.Admin.NormalizedUserName == normalizedAdminUsername) ?? throw new ArgumentException("Event not found");
 
 
         var newParticipant = new EventUser
@@ -103,7 +103,7 @@ public partial class EventService(FriendStuffDbContext context) : IEventService
         await context.SaveChangesAsync();
     }
 
-    public async Task RemoveMember(AddMemberDto userToRemove)
+    public async Task RemoveMember(EventMemberDto userToRemove)
     {
         var normalizedUsername = userToRemove.UserName.Trim().ToLowerInvariant();
      

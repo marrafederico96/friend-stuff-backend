@@ -17,7 +17,7 @@ public class ExpenseController(IExpenseService expenseService) : ControllerBase
         }
         catch (ArgumentException e)
         {
-            return Unauthorized(new { message = e.Message });
+            return BadRequest(new { message = e.Message });
         }
         catch (Exception)
         {
