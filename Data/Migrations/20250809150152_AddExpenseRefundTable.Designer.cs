@@ -3,6 +3,7 @@ using System;
 using FriendStuffBackend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FriendStuffBackend.Data.Migrations
 {
     [DbContext(typeof(FriendStuffDbContext))]
-    partial class FriendStuffDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250809150152_AddExpenseRefundTable")]
+    partial class AddExpenseRefundTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -134,10 +137,6 @@ namespace FriendStuffBackend.Data.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
-
-                    b.Property<decimal>("AmountOwed")
-                        .HasColumnType("numeric")
-                        .HasColumnName("amount_owed");
 
                     b.Property<Guid>("ExpenseId")
                         .HasColumnType("uuid")
@@ -339,7 +338,7 @@ namespace FriendStuffBackend.Data.Migrations
             modelBuilder.Entity("FriendStuffBackend.Domain.Entities.ExpenseRefund", b =>
                 {
                     b.HasOne("FriendStuffBackend.Domain.Entities.User", "Debtor")
-                        .WithMany("ExpenseRefunds")
+                        .WithMany()
                         .HasForeignKey("DebtorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -383,8 +382,6 @@ namespace FriendStuffBackend.Data.Migrations
                     b.Navigation("Events");
 
                     b.Navigation("ExpenseParticipants");
-
-                    b.Navigation("ExpenseRefunds");
 
                     b.Navigation("ExpensesPayed");
 

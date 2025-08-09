@@ -15,10 +15,15 @@ public class ExpenseParticipant
     [Column("expense_id")]
     public required Guid ExpenseId { get; init; }
     
+    [Column("amount_owed")]
+    public required decimal  AmountOwed { get; set; }
+    
     [ForeignKey("ParticipantId")]
     public User? Participant { get; init; }
     
     [ForeignKey(("ExpenseId"))]
     public Expense? Expense { get; init; }
+    
+    
     
 }

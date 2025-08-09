@@ -40,9 +40,9 @@ public partial class ExpenseService(FriendStuffDbContext context) : IExpenseServ
         Expense newExpense = new()
         {
             ExpenseDate = DateTime.UtcNow,
-            Amount = expenseData.Amount,
+            Amount = Math.Round(expenseData.Amount,2),
             EventId = eventFound.EventId,
-            ExpenseName = expenseData.ExpenseName,
+            ExpenseName = expenseData.ExpenseName.TrimEnd().TrimStart().ToLowerInvariant(),
             PayerId = payer.Id,
         };
 
@@ -63,10 +63,19 @@ public partial class ExpenseService(FriendStuffDbContext context) : IExpenseServ
                 {
                     ParticipantId = participant.Id,
                     ExpenseId = newExpense.Id,
+                    AmountOwed = Math.Round(newExpense.Amount / participants.Count, 2)
                 });
             }
         }
+
+        
         await context.Expenses.AddAsync(newExpense);
+        var expensePayer = newExpense.Payer?.ExpenseParticipants
+                               .Where(ex => ex.Expense != null && ex.Expense.ExpenseName == newExpense.ExpenseName)
+                               .FirstOrDefault(ex => ex.Expense != null && ex.Expense.PayerId == payer.Id)
+                           ?? throw new ArgumentException("Payer expense not found");
+
+        context.ExpenseParticipants.Remove(expensePayer);
         await context.SaveChangesAsync();
     }
 }

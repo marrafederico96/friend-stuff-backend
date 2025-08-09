@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using FriendStuffBackend.Features.ExpenseEventRefund.DTOs;
 
 namespace FriendStuffBackend.Domain.Entities;
 
@@ -29,11 +30,9 @@ public class User
     public required DateTime CreatedAt { get; init; }
 
     public ICollection<RefreshToken> RefreshTokens { get; init; } = [];
-
     public ICollection<EventUser> Events { get; init; } = [];
-
     public ICollection<Expense> ExpensesPayed { get; init; } = [];
-
     public ICollection<ExpenseParticipant> ExpenseParticipants { get; init; } = [];
+    public ICollection<ExpenseRefund> ExpenseRefunds { get; init; } = [];
 
 }

@@ -14,10 +14,14 @@ public class FriendStuffDbContext(DbContextOptions<FriendStuffDbContext> options
     public DbSet<Expense> Expenses { get; set; }
     
     public DbSet<ExpenseParticipant> ExpenseParticipants { get; set; }
+    
+    public DbSet<ExpenseRefund> ExpenseRefunds { get; set; }
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new UserConfiguration());
         modelBuilder.ApplyConfiguration(new EventConfiguration());
         modelBuilder.ApplyConfiguration(new ExpenseConfiguration());
+        modelBuilder.ApplyConfiguration(new ExpenseRefundConfiguration());
     }
 }
