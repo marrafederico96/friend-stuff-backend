@@ -110,7 +110,11 @@ public class AccountController(IAccountService accountService, ITokenService tok
                 Path = "/api/account/refresh"
             });
             return Ok();
-        } catch (Exception)
+        }catch (ArgumentException e)
+        {
+            return BadRequest(new {message = e.Message});
+        } 
+        catch (Exception)
         {
             return StatusCode(StatusCodes.Status500InternalServerError, new {message ="Internal Error."});
         }
@@ -132,7 +136,7 @@ public class AccountController(IAccountService accountService, ITokenService tok
         }
         catch (ArgumentException e)
         {
-            return Unauthorized(new {message = e.Message});
+            return BadRequest(new {message = e.Message});
         } catch (Exception)
         {
             return StatusCode(StatusCodes.Status500InternalServerError, new {message ="Internal Error."});
