@@ -72,6 +72,11 @@ builder.Services.AddScoped<IExpenseService, ExpenseService>();
 
 var app = builder.Build();
 
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHsts();
+}
+
 app.UseCors("AllowAngularApp");
 
 if (app.Environment.IsDevelopment())
