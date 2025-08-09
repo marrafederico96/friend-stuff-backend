@@ -38,7 +38,7 @@ public class AccountController(IAccountService accountService, ITokenService tok
                 HttpOnly = true,
                 Secure = true,
                 Path = "/api/account",
-                SameSite = SameSiteMode.Strict,
+                SameSite = SameSiteMode.None,
                 Expires = DateTimeOffset.UtcNow.AddDays(15)
             });
             return Ok(new {access_token = token.AccessToken});
@@ -84,7 +84,7 @@ public class AccountController(IAccountService accountService, ITokenService tok
                 HttpOnly = true,
                 Secure = true,
                 Path = "/api/account",
-                SameSite = SameSiteMode.Strict,
+                SameSite = SameSiteMode.None,
                 Expires = DateTime.UtcNow.AddDays(15),
             });
             return Ok(new { access_token = token.AccessToken });
@@ -118,7 +118,10 @@ public class AccountController(IAccountService accountService, ITokenService tok
             
             HttpContext.Response.Cookies.Delete("refresh_token", new CookieOptions
             {
-                Path = "/api/account"
+                Path = "/api/account",
+                SameSite = SameSiteMode.None,
+                Secure = true,
+                HttpOnly = true
             });
             return Ok();
         }catch (ArgumentException e)
