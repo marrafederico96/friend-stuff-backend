@@ -27,9 +27,9 @@ public interface IAccountService
     /// <summary>
     /// Logs out a userName by invalidating their active refresh tokens.
     /// </summary>
-    /// <param name="userName">The username of the User to be logged out.</param>
+    /// <param name="email">The email of the User to be logged out.</param>
     /// <returns>A task representing the asynchronous logout operation.</returns>
-    public Task LogoutUser(UserNameDto userName);
+    public Task LogoutUser(string email);
 
     /// <summary>
     /// Retrieves detailed information about a specific user.

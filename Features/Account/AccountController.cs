@@ -37,7 +37,7 @@ public class AccountController(IAccountService accountService, ITokenService tok
             {
                 HttpOnly = true,
                 Secure = true,
-                Path = "/api/account/refresh",
+                Path = "/api/account",
                 SameSite = SameSiteMode.Strict,
                 Expires = DateTimeOffset.UtcNow.AddDays(15)
             });
@@ -76,14 +76,14 @@ public class AccountController(IAccountService accountService, ITokenService tok
             
             HttpContext.Response.Cookies.Delete("refresh_token", new CookieOptions
             {
-                Path = "/api/account/refresh"
+                Path = "/api/account"
             });
             var token = await tokenService.GenerateToken(email);
             HttpContext.Response.Cookies.Append("refresh_token", token.RefreshToken.ToString(), new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
-                Path = "/api/account/refresh",
+                Path = "/api/account",
                 SameSite = SameSiteMode.Strict,
                 Expires = DateTime.UtcNow.AddDays(15),
             });
@@ -101,13 +101,24 @@ public class AccountController(IAccountService accountService, ITokenService tok
     }
 
     [HttpPost]
-    public async Task<IActionResult> Logout([FromBody] UserNameDto userNameName ) {
+    public async Task<IActionResult> Logout() {
         try
         {
-            await accountService.LogoutUser(userNameName);
+            var refreshToken = HttpContext.Request.Cookies["refresh_token"];
+            if (string.IsNullOrEmpty(refreshToken))
+            {
+                return Unauthorized(new { message = "Refresh token missing." });
+            }
+            var email = await tokenService.GetEmailByRefreshToken(refreshToken);
+            if (string.IsNullOrEmpty(email))
+            {
+                return Unauthorized(new { message = "Invalid refresh token." });
+            }
+            await accountService.LogoutUser(email);
+            
             HttpContext.Response.Cookies.Delete("refresh_token", new CookieOptions
             {
-                Path = "/api/account/refresh"
+                Path = "/api/account"
             });
             return Ok();
         }catch (ArgumentException e)
