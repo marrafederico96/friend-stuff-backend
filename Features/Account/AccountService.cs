@@ -173,6 +173,7 @@ public class AccountService(FriendStuffDbContext context, IPasswordHasher<User> 
                                                     return new ExpenseParticipantDto
                                                     {
                                                         UserName = p.Participant.UserName,
+                                                        AmountOwed = p.AmountOwed
                                                     };
                                                 return null;
                                             }).ToList()
