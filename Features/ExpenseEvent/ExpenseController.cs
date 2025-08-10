@@ -28,6 +28,7 @@ public class ExpenseController(IExpenseService expenseService) : ControllerBase
     }
     
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Balance([FromBody] ExpenseBalanceDto balanceData)
     {
         try
