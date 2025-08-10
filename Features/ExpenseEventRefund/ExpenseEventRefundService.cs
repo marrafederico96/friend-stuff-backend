@@ -11,7 +11,6 @@ public class ExpenseEventRefundService(FriendStuffDbContext context) : IExpenseE
     {
         var normalizedDebtorUsername = refundData.DebtorUsername.Trim().ToLowerInvariant();
         var normalizedPayerUsername = refundData.PayerUsername.Trim().ToLowerInvariant();
-        var normalizedExpenseName = refundData.ExpenseName.TrimEnd().TrimStart().ToLowerInvariant();
 
         var debtor = await context.Users
             .Where(u => u.NormalizedUserName == normalizedDebtorUsername)
@@ -33,20 +32,12 @@ public class ExpenseEventRefundService(FriendStuffDbContext context) : IExpenseE
             throw new ArgumentException("Refund must be greater than amount owed");
         }
 
-        var currentExpense = payer.ExpenseParticipants
-                                 .FirstOrDefault(ex =>
-                                     ex.Expense != null && ex.Expense.ExpenseName == normalizedExpenseName)
-                             ?? throw new ArgumentException("Expense not found");
-        
         ExpenseRefund newRefund = new()
         {
              AmountRefund = Math.Round(refundData.AmountRefund,2),
              DebtorId = debtor.Id,
-             ExpenseId = currentExpense.ExpenseId,
              RefundDate = DateTime.UtcNow
         };
-
-        var updateAmountOwed = amountOwed - refundData.AmountRefund;
 
         await context.ExpenseRefunds.AddAsync(newRefund);
         await context.SaveChangesAsync();

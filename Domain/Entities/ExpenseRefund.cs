@@ -15,8 +15,8 @@ public class ExpenseRefund
     [Column("debtor_id")]
     public Guid DebtorId { get; init; }
     
-    [Column("expense_id")]
-    public Guid ExpenseId { get; init; }
+    [Column("payer_id")]
+    public Guid PayerId { get; init; }
     
     [Column("amount_refund")]
     public decimal AmountRefund { get; init; }
@@ -24,6 +24,7 @@ public class ExpenseRefund
     [ForeignKey("DebtorId")]
     public User? Debtor { get; init; }
     
-    [ForeignKey("ExpenseId")]
-    public Expense? Expense { get; init; }
+    [ForeignKey("PayerId")]
+    public User? Payer { get; init; }
+    
 }

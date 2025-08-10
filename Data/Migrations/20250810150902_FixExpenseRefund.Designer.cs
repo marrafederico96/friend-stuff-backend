@@ -3,6 +3,7 @@ using System;
 using FriendStuffBackend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FriendStuffBackend.Data.Migrations
 {
     [DbContext(typeof(FriendStuffDbContext))]
-    partial class FriendStuffDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250810150902_FixExpenseRefund")]
+    partial class FixExpenseRefund
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -170,10 +173,6 @@ namespace FriendStuffBackend.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("debtor_id");
 
-                    b.Property<Guid>("PayerId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("payer_id");
-
                     b.Property<DateTime>("RefundDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("refund_date");
@@ -181,8 +180,6 @@ namespace FriendStuffBackend.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DebtorId");
-
-                    b.HasIndex("PayerId");
 
                     b.ToTable("expense_refund", t =>
                         {
@@ -339,20 +336,12 @@ namespace FriendStuffBackend.Data.Migrations
             modelBuilder.Entity("FriendStuffBackend.Domain.Entities.ExpenseRefund", b =>
                 {
                     b.HasOne("FriendStuffBackend.Domain.Entities.User", "Debtor")
-                        .WithMany("ExpenseAsDebtor")
+                        .WithMany("ExpenseRefunds")
                         .HasForeignKey("DebtorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("FriendStuffBackend.Domain.Entities.User", "Payer")
-                        .WithMany("ExpenseAsPayer")
-                        .HasForeignKey("PayerId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Debtor");
-
-                    b.Navigation("Payer");
                 });
 
             modelBuilder.Entity("FriendStuffBackend.Domain.Entities.RefreshToken", b =>
@@ -382,11 +371,9 @@ namespace FriendStuffBackend.Data.Migrations
                 {
                     b.Navigation("Events");
 
-                    b.Navigation("ExpenseAsDebtor");
-
-                    b.Navigation("ExpenseAsPayer");
-
                     b.Navigation("ExpenseParticipants");
+
+                    b.Navigation("ExpenseRefunds");
 
                     b.Navigation("ExpensesPayed");
 

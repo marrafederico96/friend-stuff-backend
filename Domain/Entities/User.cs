@@ -31,8 +31,11 @@ public class User
 
     public ICollection<RefreshToken> RefreshTokens { get; init; } = [];
     public ICollection<EventUser> Events { get; init; } = [];
-    public ICollection<Expense> ExpensesPayed { get; init; } = [];
     public ICollection<ExpenseParticipant> ExpenseParticipants { get; init; } = [];
-    public ICollection<ExpenseRefund> ExpenseRefunds { get; init; } = [];
+    public ICollection<ExpenseRefund> ExpenseAsDebtor { get; init; } = [];
+    public ICollection<ExpenseRefund> ExpenseAsPayer { get; init; } = [];
+
+    public ICollection<Expense> ExpensesPayed { get; init; } = [];
+    
 
 }

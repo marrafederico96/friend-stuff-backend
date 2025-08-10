@@ -17,5 +17,8 @@ namespace FriendStuffBackend.Features.ExpenseEvent
         /// A task representing the asynchronous operation.
         /// </returns>
         Task AddExpense(ExpenseEventDto expenseData);
+
+        public Task<List<ResponseBalanceDto>> GetBalance(ExpenseBalanceDto balanceData);
+
     }
 }

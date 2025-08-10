@@ -9,9 +9,6 @@ public record ExpenseEventRefundDto
     public required decimal AmountRefund { get; set; }
     
     [Required]
-    public required string ExpenseName { get; init; }
-    
-    [Required]
     public required string PayerUsername { get; init; } 
     
     [Required]

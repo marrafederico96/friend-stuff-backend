@@ -67,8 +67,6 @@ public partial class ExpenseService(FriendStuffDbContext context) : IExpenseServ
                 });
             }
         }
-
-        
         await context.Expenses.AddAsync(newExpense);
         var expensePayer = newExpense.Payer?.ExpenseParticipants
                                .Where(ex => ex.Expense != null && ex.Expense.ExpenseName == newExpense.ExpenseName)
@@ -77,5 +75,42 @@ public partial class ExpenseService(FriendStuffDbContext context) : IExpenseServ
 
         context.ExpenseParticipants.Remove(expensePayer);
         await context.SaveChangesAsync();
+    }
+
+    public async Task<List<ResponseBalanceDto>> GetBalance(ExpenseBalanceDto balanceData)
+    {
+        var normalizedUsername = balanceData.LoggedUsername.Trim().ToLowerInvariant();
+
+        var loggedUsername = await context.Users
+            .Where(u => u.NormalizedUserName == normalizedUsername)
+            .Include(u => u.ExpenseParticipants).ThenInclude(ex => ex.Expense)
+            .Include(ex => ex.ExpenseAsDebtor)
+            .FirstOrDefaultAsync() ?? throw new ArgumentException("Debtor not found");
+        
+        var otherUserIds = await context.Expenses
+            .Where(e => e.PayerId == loggedUsername.Id || e.Participants.Any(p => p.ParticipantId == loggedUsername.Id))
+            .SelectMany(e => e.Participants.Select(p => p.ParticipantId)
+                .Union(new[] { e.PayerId }))
+            .Where(uid => uid != loggedUsername.Id)
+            .Distinct()
+            .ToListAsync();
+        
+        var otherUsers = await context.Users
+            .Where(u => otherUserIds.Contains(u.Id))
+            .Include(u => u.ExpenseParticipants).ThenInclude(ep => ep.Expense)
+            .Include(u => u.ExpenseAsDebtor)
+            .ToListAsync();
+
+        return (from other in otherUsers
+            let amountOwedToOther = loggedUsername.ExpenseParticipants.Where(ep => ep.Expense != null && ep.Expense.PayerId == other.Id)
+                .Sum(ep => ep.AmountOwed)
+            let refundToOther = loggedUsername.ExpenseAsDebtor.Where(er => er.PayerId == other.Id)
+                .Sum(er => er.AmountRefund)
+            let amountOwedByOther = other.ExpenseParticipants.Where(ep => ep.Expense != null && ep.Expense.PayerId == loggedUsername.Id)
+                .Sum(ep => ep.AmountOwed)
+            let refundFromOther = other.ExpenseAsDebtor.Where(er => er.PayerId == loggedUsername.Id)
+                .Sum(er => er.AmountRefund)
+            let balanceAmount = amountOwedToOther - refundToOther - amountOwedByOther + refundFromOther
+            select new ResponseBalanceDto { DebtorUsername = loggedUsername.UserName, PayerUsername = other.UserName, BalanceAmount = balanceAmount }).ToList();
     }
 }
