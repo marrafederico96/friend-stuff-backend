@@ -66,6 +66,7 @@ builder.Services.AddRouting(options =>
     options.LowercaseUrls = true;
 });
 
+builder.Services.AddSignalR();
 
 // My services
 builder.Services.AddScoped<IPasswordHasher<User>, BcryptPasswordHasher>();
@@ -96,5 +97,5 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-
+app.MapHub<MessageHub>("/messageHub");
 app.Run();

@@ -1,11 +1,12 @@
 using FriendStuffBackend.Data;
 using FriendStuffBackend.Domain.Entities;
 using FriendStuffBackend.Features.EventMessage.DTOs;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace FriendStuffBackend.Features.EventMessage;
 
-public class EventMessageService(FriendStuffDbContext context) : IEventMessageService
+public class EventMessageService(FriendStuffDbContext context, IHubContext<MessageHub> hubContext) : IEventMessageService
 {
     public async Task SendMessage(EventMessageDto messageData)
     {
@@ -32,6 +33,15 @@ public class EventMessageService(FriendStuffDbContext context) : IEventMessageSe
             };
             await context.Messages.AddAsync(newMessage);
             await context.SaveChangesAsync();
+
+            await hubContext.Clients.Group(eventName)
+                .SendAsync("ReceiveMessage", new
+                {
+                    messageContent= newMessage.Content,
+                    SenderUsername = sender.UserName,
+                    EventName = eventName
+                });
+
         }
         else
         {
