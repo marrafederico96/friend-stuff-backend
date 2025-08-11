@@ -3,6 +3,7 @@ using System;
 using FriendStuffBackend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FriendStuffBackend.Data.Migrations
 {
     [DbContext(typeof(FriendStuffDbContext))]
-    partial class FriendStuffDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250811085617_AddMessageAndChatTable")]
+    partial class AddMessageAndChatTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,23 @@ namespace FriendStuffBackend.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("FriendStuffBackend.Domain.Entities.Chat", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("event_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId");
+
+                    b.ToTable("chats");
+                });
 
             modelBuilder.Entity("FriendStuffBackend.Domain.Entities.Event", b =>
                 {
@@ -196,14 +216,14 @@ namespace FriendStuffBackend.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("ChatId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("chat_id");
+
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("content");
-
-                    b.Property<Guid>("EventId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("event_id");
 
                     b.Property<DateTime>("SendDate")
                         .HasColumnType("timestamp with time zone")
@@ -215,7 +235,7 @@ namespace FriendStuffBackend.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EventId");
+                    b.HasIndex("ChatId");
 
                     b.HasIndex("SenderId");
 
@@ -298,6 +318,17 @@ namespace FriendStuffBackend.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("users");
+                });
+
+            modelBuilder.Entity("FriendStuffBackend.Domain.Entities.Chat", b =>
+                {
+                    b.HasOne("FriendStuffBackend.Domain.Entities.Event", "Event")
+                        .WithMany()
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Event");
                 });
 
             modelBuilder.Entity("FriendStuffBackend.Domain.Entities.Event", b =>
@@ -389,19 +420,19 @@ namespace FriendStuffBackend.Data.Migrations
 
             modelBuilder.Entity("FriendStuffBackend.Domain.Entities.Message", b =>
                 {
-                    b.HasOne("FriendStuffBackend.Domain.Entities.Event", "Event")
-                        .WithMany("Messages")
-                        .HasForeignKey("EventId")
+                    b.HasOne("FriendStuffBackend.Domain.Entities.Chat", "Chat")
+                        .WithMany()
+                        .HasForeignKey("ChatId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FriendStuffBackend.Domain.Entities.User", "Sender")
-                        .WithMany()
+                        .WithMany("Messages")
                         .HasForeignKey("SenderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Event");
+                    b.Navigation("Chat");
 
                     b.Navigation("Sender");
                 });
@@ -420,8 +451,6 @@ namespace FriendStuffBackend.Data.Migrations
             modelBuilder.Entity("FriendStuffBackend.Domain.Entities.Event", b =>
                 {
                     b.Navigation("Expenses");
-
-                    b.Navigation("Messages");
 
                     b.Navigation("Participants");
                 });
@@ -442,6 +471,8 @@ namespace FriendStuffBackend.Data.Migrations
                     b.Navigation("ExpenseParticipants");
 
                     b.Navigation("ExpensesPayed");
+
+                    b.Navigation("Messages");
 
                     b.Navigation("RefreshTokens");
                 });

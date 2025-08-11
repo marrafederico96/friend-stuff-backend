@@ -29,13 +29,11 @@ public class User
     [Column("created_at")]
     public required DateTime CreatedAt { get; init; }
 
-    public ICollection<RefreshToken> RefreshTokens { get; init; } = [];
-    public ICollection<EventUser> Events { get; init; } = [];
-    public ICollection<ExpenseParticipant> ExpenseParticipants { get; init; } = [];
-    public ICollection<ExpenseRefund> ExpenseAsDebtor { get; init; } = [];
-    public ICollection<ExpenseRefund> ExpenseAsPayer { get; init; } = [];
-
+    public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
+    public ICollection<EventUser> Events { get; set; } = [];
+    public ICollection<ExpenseParticipant> ExpenseParticipants { get; set; } = [];
+    public ICollection<ExpenseRefund> ExpenseAsDebtor { get; set; } = [];
+    public ICollection<ExpenseRefund> ExpenseAsPayer { get; set; } = [];
     public ICollection<Expense> ExpensesPayed { get; init; } = [];
-    
 
 }

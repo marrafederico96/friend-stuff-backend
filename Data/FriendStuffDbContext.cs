@@ -17,6 +17,8 @@ public class FriendStuffDbContext(DbContextOptions<FriendStuffDbContext> options
     
     public DbSet<ExpenseRefund> ExpenseRefunds { get; set; }
     
+    public DbSet<Message> Messages { get; set; }
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new UserConfiguration());

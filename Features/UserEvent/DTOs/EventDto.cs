@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using FriendStuffBackend.Domain.Entities;
+using FriendStuffBackend.Features.EventMessage.DTOs;
 using FriendStuffBackend.Features.ExpenseEvent.DTOs;
 
 namespace FriendStuffBackend.Features.UserEvent.DTOs;
@@ -22,4 +24,6 @@ public record EventDto
     public List<EventUserDto?> Participants { get; set; } = [];
 
     public List<ExpenseEventDto?> ExpensesEvent { get; set; } = [];
+
+    public List<EventMessageDto?> Messages { get; set; } = [];
 }

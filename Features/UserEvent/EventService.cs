@@ -106,7 +106,7 @@ public partial class EventService(FriendStuffDbContext context) : IEventService
     public async Task RemoveMember(EventMemberDto userToRemove)
     {
         var normalizedUsername = userToRemove.UserName.Trim().ToLowerInvariant();
-     
+        
         var userFound = await context.Users
             .Where(u => u.NormalizedUserName == normalizedUsername)
             .Include(u => u.Events)

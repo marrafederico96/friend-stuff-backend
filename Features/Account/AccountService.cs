@@ -3,6 +3,7 @@ using FriendStuffBackend.Domain.Entities;
 using FriendStuffBackend.Features.Account.DTOs;
 using FriendStuffBackend.Features.Account.Token;
 using FriendStuffBackend.Features.Account.Token.DTOs;
+using FriendStuffBackend.Features.EventMessage.DTOs;
 using FriendStuffBackend.Features.ExpenseEvent.DTOs;
 using FriendStuffBackend.Features.UserEvent.DTOs;
 using Microsoft.AspNetCore.Identity;
@@ -97,34 +98,30 @@ public class AccountService(FriendStuffDbContext context, IPasswordHasher<User> 
         // Find the user by email
         var user = await context.Users
                        .Where(u => u.Email == normalizedEmail)
-
                        .Include(u => u.Events)
                        .ThenInclude(eu => eu.Event)
-
                        .Include(u => u.Events)
                        .ThenInclude(eu => eu.Event)
                        .ThenInclude(e => e.Participants)
                        .ThenInclude(ep => ep.Participant)
-
                        .Include(u => u.Events)
                        .ThenInclude(eu => eu.Event)
                        .ThenInclude(e => e.Admin)
-
                        .Include(u => u.Events)
                        .ThenInclude(eu => eu.Event)
                        .ThenInclude(e => e.Expenses)
-
                        .Include(u => u.Events)
                        .ThenInclude(eu => eu.Event)
                        .ThenInclude(e => e.Expenses)
                        .ThenInclude(exp => exp.Payer)
-
                        .Include(u => u.Events)
                        .ThenInclude(eu => eu.Event)
                        .ThenInclude(e => e.Expenses)
                        .ThenInclude(exp => exp.Participants)
                        .ThenInclude(expPart => expPart.Participant)
-
+                       .Include(u => u.Events)
+                       .ThenInclude(e => e.Event)
+                       .ThenInclude(e => e.Messages).ThenInclude(message => message.Sender)
                        .Include(u => u.ExpenseParticipants)
                        .ThenInclude(expPart => expPart.Expense)
 
@@ -177,6 +174,19 @@ public class AccountService(FriendStuffDbContext context, IPasswordHasher<User> 
                                                     };
                                                 return null;
                                             }).ToList()
+                                    };
+                                return null;
+                            }).ToList(),
+                        Messages = eu.Event.Messages
+                            .OrderBy(m => m.SendDate)
+                            .Select(m =>
+                            {
+                                if (m is { Event: not null, Sender: not null })
+                                    return new EventMessageDto
+                                    {
+                                        NormalizedEventName = m.Event.NormalizedEventName,
+                                        MessageContent = m.Content,
+                                        SenderUsername = m.Sender.UserName
                                     };
                                 return null;
                             }).ToList()

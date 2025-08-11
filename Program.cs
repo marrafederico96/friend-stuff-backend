@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using DotNetEnv;
+using FriendStuffBackend.Features.EventMessage;
 using FriendStuffBackend.Features.ExpenseEvent;
 using FriendStuffBackend.Features.ExpenseEventRefund;
 
@@ -73,6 +74,7 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 builder.Services.AddScoped<IExpenseEventRefundService, ExpenseEventRefundService>();
+builder.Services.AddScoped<IEventMessageService, EventMessageService>();
 
 var app = builder.Build();
 

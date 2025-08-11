@@ -33,4 +33,6 @@ public class Event
 
     public ICollection<Expense> Expenses { get; init; } = [];
 
+    public ICollection<Message> Messages { get; set; } = [];
+
 }
