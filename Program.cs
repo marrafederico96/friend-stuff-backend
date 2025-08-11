@@ -50,8 +50,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = false,
             ValidateLifetime = true,
         };
-    });
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) && (path.StartsWithSegments("/api/messageHub")))
+                {
+                    context.Token = accessToken;
+                }
 
+                return Task.CompletedTask;
+            }
+        };
+    });
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
@@ -85,6 +98,8 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowAngularApp");
+app.UseRouting();
+
 
 if (app.Environment.IsDevelopment())
 {
@@ -97,5 +112,5 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.MapHub<MessageHub>("/messageHub");
+app.MapHub<MessageHub>("/api/messageHub");
 app.Run();

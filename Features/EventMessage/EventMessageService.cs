@@ -39,9 +39,8 @@ public class EventMessageService(FriendStuffDbContext context, IHubContext<Messa
                 {
                     messageContent= newMessage.Content,
                     SenderUsername = sender.UserName,
-                    EventName = eventName
+                    NormalizedEventName = eventName
                 });
-
         }
         else
         {
