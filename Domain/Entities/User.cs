@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 
@@ -42,7 +41,7 @@ public class User
 
     private User() { }
 
-    public User Create(string username, string emailAddress, string password, PasswordHasher<User> passwordHasher)
+    public static User Create(string username, string emailAddress, string password, IPasswordHasher<User> passwordHasher)
     {
         var newUser = new User
         {

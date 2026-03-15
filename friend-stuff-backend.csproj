@@ -26,6 +26,8 @@
     <Folder Include="Domain/Entities/" />
     <Folder Include="Extensions/" />
     <Folder Include="Features/" />
+    <Folder Include="Features/Auth/" />
+    <Folder Include="Features/Auth/DTOs/" />
     <Folder Include="Shared/" />
     <Folder Include="Shared/Results/" />
     <Folder Include="Shared/Results/Enums/" />
