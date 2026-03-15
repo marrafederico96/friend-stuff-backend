@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.InteropServices;
 
 namespace FriendStuff.Domain.Entities;
 
@@ -24,6 +25,19 @@ public class RefreshToken
 
     [Required]
     public DateTime ExpireAt { get; set; } = DateTime.UtcNow.AddDays(14);
+
+    private RefreshToken() { }
+
+    public static RefreshToken Create(int userId, string tokenHash)
+    {
+        RefreshToken newRefreshToken = new()
+        {
+            UserId = userId,
+            TokenHash = tokenHash
+        };
+
+        return newRefreshToken;
+    }
 
 
     // Navigation property
