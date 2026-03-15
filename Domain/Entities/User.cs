@@ -36,6 +36,10 @@ public class User
     [Required]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+
+    // Navigation property
+    public List<RefreshToken> RefreshTokens { get; set; } = [];
+
     private User() { }
 
     public User Create(string username, string emailAddress, string password, PasswordHasher<User> passwordHasher)
