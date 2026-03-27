@@ -38,20 +38,6 @@ public class User
 
     // Navigation property
     public List<RefreshToken> RefreshTokens { get; set; } = [];
-
-    private User() { }
-
-    public static User Create(string username, string emailAddress, string password, IPasswordHasher<User> passwordHasher)
-    {
-        var newUser = new User
-        {
-            Username = username,
-            EmailAddress = emailAddress,
-            NormalizedUsername = username.Trim().ToUpperInvariant(),
-            NormalizedEmailAddress = emailAddress.Trim().ToUpperInvariant(),
-            PasswordHash = ""
-        };
-        newUser.PasswordHash = passwordHasher.HashPassword(newUser, password);
-        return newUser;
-    }
+    public List<UserActivity> Activities { get; set; } = [];
+    public List<Activity> OrganizedActivities { get; set; } = [];
 }

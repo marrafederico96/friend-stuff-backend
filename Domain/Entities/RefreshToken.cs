@@ -26,20 +26,6 @@ public class RefreshToken
     [Required]
     public DateTime ExpireAt { get; set; } = DateTime.UtcNow.AddDays(14);
 
-    private RefreshToken() { }
-
-    public static RefreshToken Create(int userId, string tokenHash)
-    {
-        RefreshToken newRefreshToken = new()
-        {
-            UserId = userId,
-            TokenHash = tokenHash
-        };
-
-        return newRefreshToken;
-    }
-
-
     // Navigation property
     [ForeignKey(nameof(UserId))]
     public User? User { get; set; }

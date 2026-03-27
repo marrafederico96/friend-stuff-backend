@@ -1,6 +1,7 @@
 using System.Text;
 using FriendStuff.Data;
 using FriendStuff.Domain.Entities;
+using FriendStuff.Features.Activities.Services;
 using FriendStuff.Features.Auth.DTOs;
 using FriendStuff.Features.Auth.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -42,6 +43,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IActivityService, ActivityService>();
 
 
 builder.Services.AddControllers();

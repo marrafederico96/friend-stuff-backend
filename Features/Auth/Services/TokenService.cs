@@ -44,7 +44,12 @@ public class TokenService(IOptions<TokenSettings> options, FriendStuffDbContext 
         var tokenValue = Guid.NewGuid().ToString();
         var tokenHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(tokenValue)));
 
-        var newRefreshToken = RefreshToken.Create(userId, tokenHash);
+        RefreshToken newRefreshToken = new()
+        {
+            UserId = userId,
+            TokenHash = tokenHash
+        };
+
         context.RefreshTokens.Add(newRefreshToken);
         await context.SaveChangesAsync(ct);
 

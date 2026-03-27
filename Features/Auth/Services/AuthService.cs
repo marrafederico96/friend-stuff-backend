@@ -37,7 +37,16 @@ public class AuthService(FriendStuffDbContext context, IPasswordHasher<User> pas
                 Type = ErrorType.Conflict
             });
 
-        var newUser = User.Create(request.Username, request.EmailAddress, request.Password, passwordHasher);
+        var newUser = new User
+        {
+            Username = request.Username,
+            EmailAddress = request.EmailAddress,
+            NormalizedUsername = request.Username.Trim().ToUpperInvariant(),
+            NormalizedEmailAddress = request.EmailAddress.Trim().ToUpperInvariant(),
+            PasswordHash = ""
+        };
+        newUser.PasswordHash = passwordHasher.HashPassword(newUser, request.Password);
+
         context.Users.Add(newUser);
         await context.SaveChangesAsync(ct);
 
