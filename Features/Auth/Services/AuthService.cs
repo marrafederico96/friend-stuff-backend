@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using FriendStuff.Shared.Results.Enums;
 using FriendStuff.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace FriendStuff.Features.Auth.Services;
 
@@ -81,5 +83,24 @@ public class AuthService(FriendStuffDbContext context, IPasswordHasher<User> pas
 
         return Result<TokenResponse>.Success(response, "User logged in");
 
+    }
+
+    public async Task<Result> AuthLogout(string refreshTokenValue, CancellationToken cancellationToken)
+    {
+        var tokenHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(refreshTokenValue)));
+
+        var rowUpdate = await context.RefreshTokens
+            .Where(t => t.TokenHash == tokenHash)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(t => t.Valid, false), cancellationToken: cancellationToken);
+
+        if (rowUpdate == 0)
+            return Result.Failure(new Error
+            {
+                Title = "Auth error",
+                Message = "Refreh token not found",
+                Type = ErrorType.NotFound
+            });
+
+        return Result.Success();
     }
 }
