@@ -8,13 +8,13 @@ namespace FriendStuff.Domain.Entities;
 public class UserActivity
 {
     [Required]
-    public int UserId { get; set; }
+    public required int UserId { get; set; }
 
     [Required]
     public int ActivityId { get; set; }
 
     [Required]
-    public UserRole Role { get; set; }
+    public required UserRole Role { get; set; }
 
     [Required]
     public DateTime JoinedAt { get; set; } = DateTime.UtcNow;

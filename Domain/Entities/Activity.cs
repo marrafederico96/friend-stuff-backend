@@ -28,7 +28,7 @@ public class Activity
     public string? Description { get; set; }
 
     [Required]
-    public ActivityType Type { get; set; }
+    public required ActivityType Type { get; set; }
 
     [Required]
     public required DateOnly StartDate { get; set; }

@@ -24,8 +24,9 @@ public class TokenService(IOptions<TokenSettings> options, FriendStuffDbContext 
         {
             Subject = new ClaimsIdentity(
             [
-                new Claim(JwtRegisteredClaimNames.Sub, username)
+                new Claim(ClaimTypes.Name, username)
             ]),
+
             Issuer = tokenSettings.Issuer,
             Audience = tokenSettings.Audience,
             Expires = DateTime.UtcNow.AddMinutes(tokenSettings.ExpirationInMinutes),
