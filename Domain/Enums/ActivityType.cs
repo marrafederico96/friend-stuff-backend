@@ -2,7 +2,8 @@ namespace FriendStuff.Domain.Enums;
 
 public enum ActivityType
 {
-    Event,
+    Social,
     Sport,
     Game,
+    Other,
 }
