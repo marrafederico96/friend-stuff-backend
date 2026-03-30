@@ -28,6 +28,9 @@
     <Folder Include="Features/Activities/DTOs/" />
     <Folder Include="Features/Activities/Services/" />
     <Folder Include="Features/Auth/DTOs/" />
+    <Folder Include="Features/Expenses/" />
+    <Folder Include="Features/Expenses/DTOs/" />
+    <Folder Include="Features/Expenses/Services/" />
     <Folder Include="Shared/" />
     <Folder Include="Shared/Results/" />
     <Folder Include="Shared/Results/Enums/" />
