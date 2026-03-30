@@ -41,6 +41,7 @@ public class Activity
 
     // Navigation property
     public List<UserActivity> Participants { get; set; } = [];
+    public List<Expense> Expenses { get; set; } = [];
 
     [ForeignKey(nameof(AdminId))]
     public User? Admin { get; set; }

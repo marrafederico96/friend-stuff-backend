@@ -23,9 +23,6 @@
   <ItemGroup>
     <Folder Include="Data/" />
     <Folder Include="Data/Configurations/" />
-    <Folder Include="Domain/" />
-    <Folder Include="Domain/Entities/" />
-    <Folder Include="Domain/Enums/" />
     <Folder Include="Extensions/" />
     <Folder Include="Features/Activities/" />
     <Folder Include="Features/Activities/DTOs/" />

@@ -39,5 +39,6 @@ public class User
     // Navigation property
     public List<RefreshToken> RefreshTokens { get; set; } = [];
     public List<UserActivity> Activities { get; set; } = [];
-    public List<Activity> OrganizedActivities { get; set; } = [];
+    public List<Expense> PaidExpenses { get; set; } = [];
+    public List<UserExpense> OwedExpenses { get; set; } = [];
 }
