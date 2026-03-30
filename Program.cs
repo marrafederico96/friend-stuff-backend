@@ -4,6 +4,7 @@ using FriendStuff.Domain.Entities;
 using FriendStuff.Features.Activities.Services;
 using FriendStuff.Features.Auth.DTOs;
 using FriendStuff.Features.Auth.Services;
+using FriendStuff.Features.Expenses.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -44,7 +45,7 @@ builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IActivityService, ActivityService>();
-
+builder.Services.AddScoped<IExpenseService, ExpenseService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
