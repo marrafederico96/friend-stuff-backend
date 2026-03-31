@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FriendStuff.Features.Expenses
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     [Authorize]
     public class ExpenseController(IExpenseService expenseService) : ControllerBase

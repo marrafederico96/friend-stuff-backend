@@ -20,6 +20,19 @@ builder.Services.AddDbContext<FriendStuffDbContext>(options =>
     options.UseSqlServer(connectionString);
 });
 
+// Add CORS origin Angular App
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "AngularApp",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:4200", "http://192.168.1.244:4200")
+                  .AllowAnyHeader()
+                  .AllowCredentials()
+                  .AllowAnyMethod();
+        });
+});
 // Add JWT bearer token and settings
 builder.Services.Configure<TokenSettings>(builder.Configuration.GetRequiredSection("TokenSettings"));
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
@@ -59,6 +72,8 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
     app.MapOpenApi();
 }
+
+app.UseCors("AngularApp");
 
 app.UseHttpsRedirection();
 
