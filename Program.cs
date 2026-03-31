@@ -5,8 +5,11 @@ using FriendStuff.Features.Activities.Services;
 using FriendStuff.Features.Auth.DTOs;
 using FriendStuff.Features.Auth.Services;
 using FriendStuff.Features.Expenses.Services;
+using FriendStuff.Shared.Results;
+using FriendStuff.Shared.Results.Enums;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
@@ -17,7 +20,7 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string not found");
 builder.Services.AddDbContext<FriendStuffDbContext>(options =>
 {
-    options.UseSqlServer(connectionString);
+    options.UseNpgsql(connectionString);
 });
 
 // Add CORS origin Angular App
@@ -60,8 +63,34 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IActivityService, ActivityService>();
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var validationErrors = context.ModelState
+                .Where(e => e.Value?.Errors.Count > 0)
+                .ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value!.Errors
+                        .Select(e => e.ErrorMessage)
+                        .ToArray()
+                );
+
+            var message = string.Join(" ", validationErrors
+                .SelectMany(kvp => kvp.Value));
+
+            var error = new Error
+            {
+                Title = "Validation failed",
+                Message = message,
+                Type = ErrorType.Validation,
+            };
+
+            return new UnprocessableEntityObjectResult(error);
+        };
+    });
+
 builder.Services.AddOpenApi();
 
 var app = builder.Build();

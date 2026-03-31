@@ -10,7 +10,7 @@ public static class ResultExtension
     public static IActionResult ToActionResult(this Result result)
     {
         if (result.IsSuccess)
-            return new OkObjectResult(new { response = result.SuccessMessage });
+            return new OkObjectResult(new { successMessage = result.SuccessMessage });
 
         return MapError(result.Error);
 
@@ -19,7 +19,7 @@ public static class ResultExtension
     public static IActionResult ToActionResult<T>(this Result<T> result)
     {
         if (result.IsSuccess)
-            return new OkObjectResult(new { response = result.SuccessMessage, value = result.Value });
+            return new OkObjectResult(new { successMessage = result.SuccessMessage, result.Value });
 
         return MapError(result.Error);
 
