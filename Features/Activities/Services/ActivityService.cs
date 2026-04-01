@@ -4,7 +4,6 @@ using FriendStuff.Features.Activities.DTOs;
 using FriendStuff.Shared.Results;
 using Microsoft.EntityFrameworkCore;
 using FriendStuff.Shared.Results.Enums;
-using Microsoft.Identity.Client;
 using FriendStuff.Domain.Entities;
 using FriendStuff.Domain.Enums;
 

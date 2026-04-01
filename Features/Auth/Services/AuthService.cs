@@ -81,7 +81,7 @@ public class AuthService(FriendStuffDbContext context, IPasswordHasher<User> pas
             });
 
         // Genero JWT e Refresh Token
-        var jwt = tokenService.GenerateAccessToken(user.Username);
+        var jwt = tokenService.GenerateAccessToken(user.Username, user.EmailAddress);
         var refreshTokenValue = await tokenService.GenerateRefreshToken(user.Id, ct);
 
         var response = new TokenResponse

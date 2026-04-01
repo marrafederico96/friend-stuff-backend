@@ -13,7 +13,7 @@ namespace FriendStuff.Features.Auth.Services;
 
 public class TokenService(IOptions<TokenSettings> options, FriendStuffDbContext context) : ITokenService
 {
-    public string GenerateAccessToken(string username)
+    public string GenerateAccessToken(string username, string emailAddress)
     {
         var tokenSettings = options.Value;
 
@@ -24,7 +24,8 @@ public class TokenService(IOptions<TokenSettings> options, FriendStuffDbContext 
         {
             Subject = new ClaimsIdentity(
             [
-                new Claim(ClaimTypes.Name, username)
+                new Claim(JwtRegisteredClaimNames.Name, username),
+                new Claim(JwtRegisteredClaimNames.Email,emailAddress)
             ]),
 
             Issuer = tokenSettings.Issuer,
