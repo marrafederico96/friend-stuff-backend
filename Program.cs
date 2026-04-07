@@ -77,7 +77,7 @@ builder.Services.AddControllers()
                         .ToArray()
                 );
 
-            var message = string.Join(" ", validationErrors
+            var message = string.Join("; ", validationErrors
                 .SelectMany(kvp => kvp.Value));
 
             var error = new Error
