@@ -8,4 +8,6 @@ public interface IAuthService
     public Task<Result> AuthRegister(RegisterRequest request, CancellationToken ct = default);
     public Task<Result<TokenResponse>> AuthLogin(LoginRequest request, CancellationToken ct = default);
     public Task<Result> AuthLogout(string refreshTokenValue, CancellationToken cancellationToken);
+
+    public Task<Result<TokenResponse>> AuthRefresh(string refreshTokenValue, CancellationToken ct = default);
 }

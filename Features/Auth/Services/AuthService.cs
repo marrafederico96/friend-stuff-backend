@@ -112,4 +112,47 @@ public class AuthService(FriendStuffDbContext context, IPasswordHasher<User> pas
 
         return Result.Success();
     }
+
+    public async Task<Result<TokenResponse>> AuthRefresh(string refreshTokenValue, CancellationToken ct = default)
+    {
+        var refreshTokenHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(refreshTokenValue)));
+
+        var checkHashValue = await context.RefreshTokens
+            .AnyAsync(ct => ct.TokenHash == refreshTokenHash && ct.Valid == true && ct.ExpireAt >= DateTime.UtcNow, cancellationToken: ct);
+
+        if (checkHashValue == false)
+            return Result<TokenResponse>.Failure(new Error
+            {
+                Title = "Auth refresh error",
+                Message = "Refreh token not valid",
+                Type = ErrorType.Unauthorized
+            });
+
+        await context.RefreshTokens
+            .Where(rt => rt.TokenHash == refreshTokenHash)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(rt => rt.Valid, false), cancellationToken: ct);
+
+
+        var userId = await context.RefreshTokens
+                    .Where(rt => rt.TokenHash == refreshTokenHash)
+                    .Select(rt => rt.UserId)
+                    .FirstOrDefaultAsync(cancellationToken: ct);
+
+        var userData = await context.Users
+            .Where(u => u.Id == userId)
+            .Select(u => new { username = u.Username, emailAddress = u.EmailAddress })
+            .FirstOrDefaultAsync(cancellationToken: ct) ?? throw new ArgumentException("Error. User not found");
+
+        var accessToken = tokenService.GenerateAccessToken(userData.username, userData.emailAddress);
+        var refreshToken = await tokenService.GenerateRefreshToken(userId, ct);
+
+        var tokenResponse = new TokenResponse
+        {
+            AccessToken = accessToken,
+            RefreshToken = refreshToken,
+        };
+
+        return Result<TokenResponse>.Success(tokenResponse);
+
+    }
 }

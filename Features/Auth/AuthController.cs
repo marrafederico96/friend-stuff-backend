@@ -1,6 +1,7 @@
 using FriendStuff.Extensions;
 using FriendStuff.Features.Auth.DTOs;
 using FriendStuff.Features.Auth.Services;
+using FriendStuff.Shared.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -53,6 +54,15 @@ namespace FriendStuff.Features.Auth
                 Expires = DateTimeOffset.UtcNow.AddDays(-1),
                 Path = "api/Auth/Refresh"
             });
+
+            return result.ToActionResult();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Refresh(CancellationToken ct)
+        {
+            var refreshTokenValue = Request.Cookies["refresh_token"] ?? throw new ArgumentException("Cookie not found");
+            var result = await authService.AuthRefresh(refreshTokenValue, ct);
 
             return result.ToActionResult();
         }
