@@ -20,7 +20,7 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string not found");
 builder.Services.AddDbContext<FriendStuffDbContext>(options =>
 {
-    options.UseNpgsql(connectionString);
+    options.UseSqlServer(connectionString);
 });
 
 // Add CORS origin Angular App
@@ -30,7 +30,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: "AngularApp",
         policy =>
         {
-            policy.WithOrigins("http://localhost:4200", "http://192.168.1.244:4200")
+            policy.WithOrigins("http://localhost:4200")
                   .AllowAnyHeader()
                   .AllowCredentials()
                   .AllowAnyMethod();
