@@ -10,5 +10,6 @@ public interface IActivityService
 
     public Task<Result> DeleteActivity(string publicActivityId, string username, CancellationToken ct);
 
-    public Task<Result> AddParticipants(AddParticpantsRequest request, CancellationToken ct);
+    public Task<Result> AddParticipants(AddParticpantsRequest request, string username, CancellationToken ct);
+
 }

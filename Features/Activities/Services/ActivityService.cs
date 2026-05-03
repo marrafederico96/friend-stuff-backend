@@ -73,7 +73,7 @@ public class ActivityService(FriendStuffDbContext context) : IActivityService
         var userId = await context.Users.Where(u => u.NormalizedUsername == username.Trim().ToUpperInvariant()).Select(u => u.Id).FirstOrDefaultAsync(cancellationToken: ct);
 
         var checkActivity = await context.Activities
-            .AnyAsync(a => a.PublicId.ToString() == publicActivityId && a.Id == userId, cancellationToken: ct);
+            .AnyAsync(a => a.PublicId.ToString() == publicActivityId && a.AdminId == userId, cancellationToken: ct);
 
         if (checkActivity == false)
             return Result.Failure(new Error
@@ -90,14 +90,16 @@ public class ActivityService(FriendStuffDbContext context) : IActivityService
         return Result.Success("Activity deleted");
     }
 
-    public async Task<Result> AddParticipants(AddParticpantsRequest request, CancellationToken ct)
+    public async Task<Result> AddParticipants(AddParticpantsRequest request, string username, CancellationToken ct)
     {
         var normalizedUsernames = request.Usernames
             .Select(u => u.Trim().ToUpperInvariant())
             .ToList();
 
+        var adminId = await context.Users.Where(u => u.NormalizedUsername == username.Trim().ToUpperInvariant()).Select(u => u.Id).FirstOrDefaultAsync(cancellationToken: ct);
+
         var activityId = await context.Activities
-            .Where(a => a.PublicId.ToString() == request.PublicActivtyId)
+            .Where(a => a.PublicId.ToString() == request.PublicActivtyId && a.AdminId == adminId)
             .Select(a => a.Id)
             .FirstOrDefaultAsync(cancellationToken: ct);
 

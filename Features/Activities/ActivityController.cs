@@ -32,7 +32,10 @@ namespace FriendStuff.Features.Activities
         [HttpPost]
         public async Task<IActionResult> AddParticipants([FromBody] AddParticpantsRequest request, CancellationToken ct)
         {
-            var result = await activityService.AddParticipants(request, ct);
+            var username = User.FindFirst("name")?.Value ?? throw new ArgumentException("JWT not valid");
+
+
+            var result = await activityService.AddParticipants(request, username, ct);
             return result.ToActionResult();
         }
     }
