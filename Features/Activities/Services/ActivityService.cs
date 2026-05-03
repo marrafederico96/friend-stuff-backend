@@ -108,7 +108,17 @@ public class ActivityService(FriendStuffDbContext context) : IActivityService
             .Select(u => u.Id)
             .ToListAsync(ct);
 
-        List<UserActivity> newParticipants = [.. userIds.Select(u => new UserActivity
+        var existingUserIds = await context.UsersActivities
+            .Where(a => userIds.Contains(a.UserId) && a.ActivityId == activityId)
+            .Select(a => a.UserId)
+            .ToListAsync(cancellationToken: ct);
+
+        var newUserIds = userIds.Except(existingUserIds).ToList();
+
+        if (newUserIds.Count == 0)
+            return Result.Success("Participants already exist");
+
+        List<UserActivity> newParticipants = [.. newUserIds.Select(u => new UserActivity
         {
             Role = UserRole.Participant,
             ActivityId = activityId,
