@@ -38,5 +38,15 @@ namespace FriendStuff.Features.Activities
             var result = await activityService.AddParticipants(request, username, ct);
             return result.ToActionResult();
         }
+
+        [HttpDelete]
+        public async Task<IActionResult> RemoveParticipant([FromBody] RemoveParticipantRequest request, CancellationToken ct)
+        {
+            var username = User.FindFirst("name")?.Value ?? throw new ArgumentException("JWT not valid");
+
+            var result = await activityService.RemoveParticipant(request, username, ct);
+            return result.ToActionResult();
+
+        }
     }
 }

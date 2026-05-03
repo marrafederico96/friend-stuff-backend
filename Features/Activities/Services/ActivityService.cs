@@ -120,4 +120,36 @@ public class ActivityService(FriendStuffDbContext context) : IActivityService
 
         return Result.Success("Participants added");
     }
+
+    public async Task<Result> RemoveParticipant(RemoveParticipantRequest request, string username, CancellationToken ct)
+    {
+        var adminId = await context.Users.Where(u => u.NormalizedUsername == username.Trim().ToUpperInvariant()).Select(u => u.Id).FirstOrDefaultAsync(cancellationToken: ct);
+
+        var checkActivityAdmin = await context.Activities.AnyAsync(a => a.PublicId.ToString() == request.PublicActivityId && a.AdminId == adminId);
+
+        if (checkActivityAdmin == false)
+            return Result.Failure(new Error
+            {
+                Title = "Error remove participant",
+                Message = "You are not admin",
+                Type = ErrorType.Unauthorized
+            });
+
+        var userIdToRemove = await context.Users
+            .Where(u => u.NormalizedUsername == request.Username.Trim().ToUpperInvariant())
+            .Select(u => u.Id)
+            .FirstOrDefaultAsync(cancellationToken: ct);
+
+        var activityId = await context.Activities
+            .Where(a => a.PublicId.ToString() == request.PublicActivityId)
+            .Select(a => a.Id)
+            .FirstOrDefaultAsync();
+
+        await context.UsersActivities
+            .Where(a => a.ActivityId == activityId && a.UserId == userIdToRemove)
+            .ExecuteDeleteAsync(cancellationToken: ct);
+
+        return Result.Success("Participant removed");
+
+    }
 }
