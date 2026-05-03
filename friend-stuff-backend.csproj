@@ -24,8 +24,6 @@
     <Folder Include="Data/" />
     <Folder Include="Data/Configurations/" />
     <Folder Include="Extensions/" />
-    <Folder Include="Features/Activities/" />
-    <Folder Include="Features/Activities/DTOs/" />
     <Folder Include="Features/Activities/Services/" />
     <Folder Include="Features/Auth/DTOs/" />
     <Folder Include="Features/Expenses/Services/" />

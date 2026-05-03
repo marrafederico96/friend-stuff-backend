@@ -7,4 +7,8 @@ namespace FriendStuff.Features.Activities.Services;
 public interface IActivityService
 {
     public Task<Result> CreateActivity(CreateActivityRequest request, string adminUsername, CancellationToken ct);
+
+    public Task<Result> DeleteActivity(string publicActivityId, string username, CancellationToken ct);
+
+    public Task<Result> AddParticipants(AddParticpantsRequest request, CancellationToken ct);
 }

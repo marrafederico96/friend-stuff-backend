@@ -11,6 +11,8 @@ namespace FriendStuff.Features.Activities.Services;
 
 public class ActivityService(FriendStuffDbContext context) : IActivityService
 {
+
+
     public async Task<Result> CreateActivity(CreateActivityRequest request, string adminUsername, CancellationToken ct)
     {
         var normalizedAdminUsername = adminUsername.Trim().ToUpperInvariant();
@@ -63,5 +65,57 @@ public class ActivityService(FriendStuffDbContext context) : IActivityService
         await context.SaveChangesAsync(ct);
 
         return Result.Success("Activity created");
+    }
+
+    public async Task<Result> DeleteActivity(string publicActivityId, string username, CancellationToken ct)
+    {
+
+        var userId = await context.Users.Where(u => u.NormalizedUsername == username.Trim().ToUpperInvariant()).Select(u => u.Id).FirstOrDefaultAsync(cancellationToken: ct);
+
+        var checkActivity = await context.Activities
+            .AnyAsync(a => a.PublicId.ToString() == publicActivityId && a.Id == userId, cancellationToken: ct);
+
+        if (checkActivity == false)
+            return Result.Failure(new Error
+            {
+                Title = "Delete activty error",
+                Message = "Activty not found or user not admin",
+                Type = ErrorType.Forbidden
+            });
+
+        await context.Activities
+            .Where(a => a.PublicId.ToString() == publicActivityId)
+            .ExecuteDeleteAsync();
+
+        return Result.Success("Activity deleted");
+    }
+
+    public async Task<Result> AddParticipants(AddParticpantsRequest request, CancellationToken ct)
+    {
+        var normalizedUsernames = request.Usernames
+            .Select(u => u.Trim().ToUpperInvariant())
+            .ToList();
+
+        var activityId = await context.Activities
+            .Where(a => a.PublicId.ToString() == request.PublicActivtyId)
+            .Select(a => a.Id)
+            .FirstOrDefaultAsync(cancellationToken: ct);
+
+        var userIds = await context.Users
+            .Where(u => normalizedUsernames.Contains(u.NormalizedUsername))
+            .Select(u => u.Id)
+            .ToListAsync(ct);
+
+        List<UserActivity> newParticipants = [.. userIds.Select(u => new UserActivity
+        {
+            Role = UserRole.Participant,
+            ActivityId = activityId,
+            UserId = u,
+        })];
+
+        await context.UsersActivities.AddRangeAsync(newParticipants, ct);
+        await context.SaveChangesAsync(ct);
+
+        return Result.Success("Participants added");
     }
 }
