@@ -153,7 +153,7 @@ public class ActivityService(FriendStuffDbContext context) : IActivityService
         var activityId = await context.Activities
             .Where(a => a.PublicId.ToString() == request.PublicActivityId)
             .Select(a => a.Id)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(cancellationToken: ct);
 
         await context.UsersActivities
             .Where(a => a.ActivityId == activityId && a.UserId == userIdToRemove)

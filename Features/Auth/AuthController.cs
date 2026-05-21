@@ -1,9 +1,7 @@
 using FriendStuff.Extensions;
 using FriendStuff.Features.Auth.DTOs;
 using FriendStuff.Features.Auth.Services;
-using FriendStuff.Shared.Results;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FriendStuff.Features.Auth
@@ -26,7 +24,11 @@ namespace FriendStuff.Features.Auth
             var response = await authService.AuthLogin(request, ct);
 
             if (response.IsSuccess)
-                Response.Cookies.Append("refresh_token", response.Value.RefreshToken, new CookieOptions
+            {
+                var accessToken = response.Value.AccessToken;
+                var refreshToken = response.Value.RefreshToken;
+
+                Response.Cookies.Append("refresh_token", refreshToken, new CookieOptions
                 {
                     HttpOnly = true,
                     Secure = true,
@@ -35,7 +37,10 @@ namespace FriendStuff.Features.Auth
                     Path = "api/Auth/Refresh"
                 });
 
-            return response.ToActionResult();
+                return Ok(new { jwt = accessToken });
+            }
+
+            return Unauthorized(new { error = "Wrong credentials" });
         }
 
         [HttpPost]
