@@ -3,14 +3,13 @@ using FriendStuff.Domain.Enums;
 
 namespace FriendStuff.Features.Activities.DTOs;
 
-public record class CreateActivityRequest
+public record CreateActivityRequest
 {
     [Required(ErrorMessage = "Activity name is required")]
     [MaxLength(100)]
     public string Name { get; set; } = string.Empty;
 
-    [MaxLength(256)]
-    public string? Description { get; set; }
+    [MaxLength(256)] public string? Description { get; set; }
 
     [Required(ErrorMessage = "Activity type is required")]
     public ActivityType Type { get; set; }

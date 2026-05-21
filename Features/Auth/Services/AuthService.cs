@@ -1,4 +1,3 @@
-using System;
 using FriendStuff.Data;
 using FriendStuff.Features.Auth.DTOs;
 using FriendStuff.Shared.Results;
@@ -11,15 +10,15 @@ using System.Text;
 
 namespace FriendStuff.Features.Auth.Services;
 
-public class AuthService(FriendStuffDbContext context, IPasswordHasher<User> passwordHasher, ITokenService tokenService) : IAuthService
+public class AuthService(FriendStuffDbContext context, IPasswordHasher<User> passwordHasher, ITokenService tokenService)
+    : IAuthService
 {
-
     public async Task<Result> AuthRegister(RegisterRequest request, CancellationToken ct = default)
     {
         var normalizedUsername = request.Username.Trim().ToUpperInvariant();
         var normalizedEmail = request.EmailAddress.Trim().ToUpperInvariant();
 
-        var checkEmail = await context.Users.AnyAsync(u => u.NormalizedEmailAddress == normalizedEmail, cancellationToken: ct);
+        var checkEmail = await context.Users.AnyAsync(u => u.NormalizedEmailAddress == normalizedEmail, ct);
         if (checkEmail)
             return Result.Failure(new Error
             {
@@ -28,7 +27,7 @@ public class AuthService(FriendStuffDbContext context, IPasswordHasher<User> pas
                 Type = ErrorType.Conflict
             });
 
-        var checkUsername = await context.Users.AnyAsync(u => u.NormalizedUsername == normalizedUsername, cancellationToken: ct);
+        var checkUsername = await context.Users.AnyAsync(u => u.NormalizedUsername == normalizedUsername, ct);
         if (checkUsername)
             return Result.Failure(new Error
             {
@@ -51,7 +50,6 @@ public class AuthService(FriendStuffDbContext context, IPasswordHasher<User> pas
         await context.SaveChangesAsync(ct);
 
         return Result.Success("User registered");
-
     }
 
     public async Task<Result<TokenResponse>> AuthLogin(LoginRequest request, CancellationToken ct = default)
@@ -61,7 +59,7 @@ public class AuthService(FriendStuffDbContext context, IPasswordHasher<User> pas
         var user = await context.Users
             .AsNoTracking()
             .Where(u => u.NormalizedEmailAddress == normalizedEmail)
-            .FirstOrDefaultAsync(cancellationToken: ct);
+            .FirstOrDefaultAsync(ct);
 
         if (user == null)
             return Result<TokenResponse>.Failure(new Error
@@ -80,7 +78,6 @@ public class AuthService(FriendStuffDbContext context, IPasswordHasher<User> pas
                 Type = ErrorType.Unauthorized
             });
 
-        // Genero JWT e Refresh Token
         var jwt = tokenService.GenerateAccessToken(user.Username, user.EmailAddress);
         var refreshTokenValue = await tokenService.GenerateRefreshToken(user.Id, ct);
 
@@ -91,7 +88,6 @@ public class AuthService(FriendStuffDbContext context, IPasswordHasher<User> pas
         };
 
         return Result<TokenResponse>.Success(response, "User logged in");
-
     }
 
     public async Task<Result> AuthLogout(string refreshTokenValue, CancellationToken cancellationToken)
@@ -100,13 +96,13 @@ public class AuthService(FriendStuffDbContext context, IPasswordHasher<User> pas
 
         var rowUpdate = await context.RefreshTokens
             .Where(t => t.TokenHash == tokenHash)
-            .ExecuteUpdateAsync(setters => setters.SetProperty(t => t.Valid, false), cancellationToken: cancellationToken);
+            .ExecuteUpdateAsync(setters => setters.SetProperty(t => t.Valid, false), cancellationToken);
 
         if (rowUpdate == 0)
             return Result.Failure(new Error
             {
                 Title = "Auth error",
-                Message = "Refreh token not found",
+                Message = "Refresh token not found",
                 Type = ErrorType.NotFound
             });
 
@@ -118,30 +114,30 @@ public class AuthService(FriendStuffDbContext context, IPasswordHasher<User> pas
         var refreshTokenHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(refreshTokenValue)));
 
         var checkHashValue = await context.RefreshTokens
-            .AnyAsync(ct => ct.TokenHash == refreshTokenHash && ct.Valid == true && ct.ExpireAt >= DateTime.UtcNow, cancellationToken: ct);
+            .AnyAsync(rt => rt.TokenHash == refreshTokenHash && rt.Valid == true && rt.ExpireAt >= DateTime.UtcNow, ct);
 
-        if (checkHashValue == false)
+        if (!checkHashValue)
             return Result<TokenResponse>.Failure(new Error
             {
                 Title = "Auth refresh error",
-                Message = "Refreh token not valid",
+                Message = "Refresh token not valid",
                 Type = ErrorType.Unauthorized
             });
 
         await context.RefreshTokens
             .Where(rt => rt.TokenHash == refreshTokenHash)
-            .ExecuteUpdateAsync(setters => setters.SetProperty(rt => rt.Valid, false), cancellationToken: ct);
+            .ExecuteUpdateAsync(setters => setters.SetProperty(rt => rt.Valid, false), ct);
 
 
         var userId = await context.RefreshTokens
-                    .Where(rt => rt.TokenHash == refreshTokenHash)
-                    .Select(rt => rt.UserId)
-                    .FirstOrDefaultAsync(cancellationToken: ct);
+            .Where(rt => rt.TokenHash == refreshTokenHash)
+            .Select(rt => rt.UserId)
+            .FirstOrDefaultAsync(ct);
 
         var userData = await context.Users
             .Where(u => u.Id == userId)
             .Select(u => new { username = u.Username, emailAddress = u.EmailAddress })
-            .FirstOrDefaultAsync(cancellationToken: ct) ?? throw new ArgumentException("Error. User not found");
+            .FirstOrDefaultAsync(ct) ?? throw new ArgumentException("Error. User not found");
 
         var accessToken = tokenService.GenerateAccessToken(userData.username, userData.emailAddress);
         var refreshToken = await tokenService.GenerateRefreshToken(userId, ct);
@@ -149,10 +145,9 @@ public class AuthService(FriendStuffDbContext context, IPasswordHasher<User> pas
         var tokenResponse = new TokenResponse
         {
             AccessToken = accessToken,
-            RefreshToken = refreshToken,
+            RefreshToken = refreshToken
         };
 
         return Result<TokenResponse>.Success(tokenResponse);
-
     }
 }

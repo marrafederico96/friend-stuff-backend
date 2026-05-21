@@ -2,7 +2,6 @@ using FriendStuff.Extensions;
 using FriendStuff.Features.Expenses.DTOs;
 using FriendStuff.Features.Expenses.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FriendStuff.Features.Expenses

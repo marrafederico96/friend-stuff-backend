@@ -1,4 +1,3 @@
-using System;
 using FriendStuff.Features.Expenses.DTOs;
 using FriendStuff.Shared.Results;
 

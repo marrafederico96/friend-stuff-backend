@@ -1,4 +1,3 @@
-using System;
 using FriendStuff.Features.Activities.DTOs;
 using FriendStuff.Shared.Results;
 
@@ -10,8 +9,7 @@ public interface IActivityService
 
     public Task<Result> DeleteActivity(string publicActivityId, string username, CancellationToken ct);
 
-    public Task<Result> AddParticipants(AddParticpantsRequest request, string username, CancellationToken ct);
+    public Task<Result> AddParticipants(AddParticipantsRequest request, string username, CancellationToken ct);
 
     public Task<Result> RemoveParticipant(RemoveParticipantRequest request, string username, CancellationToken ct);
-
 }

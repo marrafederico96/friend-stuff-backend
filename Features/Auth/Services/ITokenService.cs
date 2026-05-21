@@ -1,4 +1,3 @@
-using System;
 
 namespace FriendStuff.Features.Auth.Services;
 
