@@ -69,7 +69,24 @@ namespace FriendStuff.Features.Auth
             var refreshTokenValue = Request.Cookies["refresh_token"] ?? throw new ArgumentException("Cookie not found");
             var result = await authService.AuthRefresh(refreshTokenValue, ct);
 
-            return result.ToActionResult();
+            if (result.IsSuccess)
+            {
+                var accessToken = result.Value.AccessToken;
+                var refreshToken = result.Value.RefreshToken;
+
+                Response.Cookies.Append("refresh_token", refreshToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTimeOffset.UtcNow.AddDays(14),
+                    Path = "api/Auth/Refresh"
+                });
+
+                return Ok(new { jwt = accessToken });
+            }
+
+            return Unauthorized(new { error = "Wrong credentials" });
         }
 
     }
