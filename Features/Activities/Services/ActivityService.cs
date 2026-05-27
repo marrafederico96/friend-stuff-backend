@@ -16,14 +16,14 @@ public class ActivityService(FriendStuffDbContext context) : IActivityService
         var normalizedActivityName = request.Name.Trim().ToUpperInvariant();
 
         var adminId = await context.Users
+            .AsNoTracking()
             .Where(u => u.NormalizedUsername == normalizedAdminUsername)
             .Select(u => u.Id)
             .FirstOrDefaultAsync(ct); // throw exception TO DO
 
         var checkActivityExists = await context.Activities
-            .AnyAsync(
-                a => a.AdminId == adminId && a.NormalizedName == normalizedActivityName &&
-                     a.StartDate == request.StartDate, ct);
+            .AsNoTracking()
+            .AnyAsync(a => a.AdminId == adminId && a.NormalizedName == normalizedActivityName && a.StartDate == request.StartDate, ct);
 
         if (checkActivityExists)
             return Result.Failure(new Error
@@ -68,10 +68,13 @@ public class ActivityService(FriendStuffDbContext context) : IActivityService
 
     public async Task<Result> DeleteActivity(string publicActivityId, string username, CancellationToken ct)
     {
-        var userId = await context.Users.Where(u => u.NormalizedUsername == username.Trim().ToUpperInvariant())
+        var userId = await context.Users
+            .AsNoTracking()
+            .Where(u => u.NormalizedUsername == username.Trim().ToUpperInvariant())
             .Select(u => u.Id).FirstOrDefaultAsync(ct);
 
         var checkActivity = await context.Activities
+            .AsNoTracking()
             .AnyAsync(a => a.PublicId.ToString() == publicActivityId && a.AdminId == userId, ct);
 
         if (!checkActivity)
@@ -95,20 +98,25 @@ public class ActivityService(FriendStuffDbContext context) : IActivityService
             .Select(u => u.Trim().ToUpperInvariant())
             .ToList();
 
-        var adminId = await context.Users.Where(u => u.NormalizedUsername == username.Trim().ToUpperInvariant())
+        var adminId = await context.Users
+            .AsNoTracking()
+            .Where(u => u.NormalizedUsername == username.Trim().ToUpperInvariant())
             .Select(u => u.Id).FirstOrDefaultAsync(ct);
 
         var activityId = await context.Activities
+            .AsNoTracking()
             .Where(a => a.PublicId.ToString() == request.PublicActivityId && a.AdminId == adminId)
             .Select(a => a.Id)
             .FirstOrDefaultAsync(ct);
 
         var userIds = await context.Users
+            .AsNoTracking()
             .Where(u => normalizedUsernames.Contains(u.NormalizedUsername))
             .Select(u => u.Id)
             .ToListAsync(ct);
 
         var existingUserIds = await context.UsersActivities
+            .AsNoTracking()
             .Where(a => userIds.Contains(a.UserId) && a.ActivityId == activityId)
             .Select(a => a.UserId)
             .ToListAsync(ct);
@@ -136,12 +144,14 @@ public class ActivityService(FriendStuffDbContext context) : IActivityService
 
     public async Task<Result> RemoveParticipant(RemoveParticipantRequest request, string username, CancellationToken ct)
     {
-        var adminId = await context.Users.Where(u => u.NormalizedUsername == username.Trim().ToUpperInvariant())
+        var adminId = await context.Users
+            .AsNoTracking()
+            .Where(u => u.NormalizedUsername == username.Trim().ToUpperInvariant())
             .Select(u => u.Id).FirstOrDefaultAsync(ct);
 
-        var checkActivityAdmin =
-            await context.Activities.AnyAsync(
-                a => a.PublicId.ToString() == request.PublicActivityId && a.AdminId == adminId, ct);
+        var checkActivityAdmin = await context.Activities
+            .AsNoTracking()
+            .AnyAsync(a => a.PublicId.ToString() == request.PublicActivityId && a.AdminId == adminId, ct);
 
         if (!checkActivityAdmin)
             return Result.Failure(new Error
@@ -152,11 +162,13 @@ public class ActivityService(FriendStuffDbContext context) : IActivityService
             });
 
         var userIdToRemove = await context.Users
+            .AsNoTracking()
             .Where(u => u.NormalizedUsername == request.Username.Trim().ToUpperInvariant())
             .Select(u => u.Id)
             .FirstOrDefaultAsync(ct);
 
         var activityId = await context.Activities
+            .AsNoTracking()
             .Where(a => a.PublicId.ToString() == request.PublicActivityId)
             .Select(a => a.Id)
             .FirstOrDefaultAsync(ct);
