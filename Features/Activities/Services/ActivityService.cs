@@ -109,6 +109,16 @@ public class ActivityService(FriendStuffDbContext context) : IActivityService
             .Select(a => a.Id)
             .FirstOrDefaultAsync(ct);
 
+        if (activityId == 0)
+        {
+            return Result.Failure(new Error
+            {
+                Title = "Activity error",
+                Message = "Only admin can add participants to activity",
+                Type = ErrorType.Unauthorized
+            });
+        }
+
         var userIds = await context.Users
             .AsNoTracking()
             .Where(u => normalizedUsernames.Contains(u.NormalizedUsername))
