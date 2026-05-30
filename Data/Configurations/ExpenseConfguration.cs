@@ -1,4 +1,3 @@
-using System;
 using FriendStuff.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -10,6 +9,8 @@ public class ExpenseConfguration : IEntityTypeConfiguration<Expense>
     public void Configure(EntityTypeBuilder<Expense> builder)
     {
         builder.Property(p => p.Amount).HasPrecision(18, 2);
+
+        builder.HasIndex(e => e.PublicId).IsUnique();
 
         builder.HasOne(a => a.Payer)
         .WithMany(p => p.PaidExpenses)

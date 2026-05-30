@@ -1,7 +1,6 @@
-using System;
+using FriendStuff.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using FriendStuff.Domain.Enums;
 
 namespace FriendStuff.Domain.Entities;
 
@@ -9,6 +8,9 @@ public class Expense
 {
     [Key]
     public int Id { get; set; }
+
+    [Required]
+    public Guid PublicId{ get; set; }
 
     [Required]
     public required int PayerId { get; set; }

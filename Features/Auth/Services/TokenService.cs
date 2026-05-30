@@ -1,6 +1,3 @@
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 using FriendStuff.Data;
 using FriendStuff.Domain.Entities;
 using FriendStuff.Features.Auth.DTOs;
@@ -8,6 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace FriendStuff.Features.Auth.Services;
 
@@ -24,8 +24,8 @@ public class TokenService(IOptions<TokenSettings> options, FriendStuffDbContext 
         {
             Subject = new ClaimsIdentity(
             [
-                new Claim(JwtRegisteredClaimNames.Name, username),
-                new Claim(JwtRegisteredClaimNames.Email, emailAddress)
+                new Claim(ClaimTypes.Name, username),
+                new Claim(ClaimTypes.Email, emailAddress)
             ]),
 
             Issuer = tokenSettings.Issuer,

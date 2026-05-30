@@ -20,5 +20,12 @@ namespace FriendStuff.Features.Expenses
             var result = await expenseService.CreateExpense(request, payerUsername, ct);
             return result.ToActionResult();
         }
+
+        [HttpPost]
+        public async Task<IActionResult> AddParticipants([FromBody] AddExpenseParticipantRequest request, CancellationToken ct)
+        {
+            var result = await expenseService.AddExpenseParticipant(request, ct);
+            return result.ToActionResult();
+        }
     }
 }

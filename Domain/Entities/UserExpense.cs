@@ -10,10 +10,10 @@ public class UserExpense
     public int Id { get; set; }
 
     [Required]
-    public required int ExpenseId { get; set; }
+    public int ExpenseId { get; set; }
 
     [Required]
-    public required int DebtorId { get; set; }
+    public int DebtorId { get; set; }
 
     [Required]
     public required decimal AmountOwed { get; set; }
