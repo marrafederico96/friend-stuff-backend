@@ -80,10 +80,18 @@ public class ExpenseService(FriendStuffDbContext context) : IExpenseService
            .Select(u => u.Id)
            .ToListAsync(ct);
 
-        // controllare che tutti gli ids fanno parte dell'attività in questione
-        // TO DO
+        foreach(var id in userIds) {
+            var checkId = await context.UsersActivities.Where(ua => ua.ActivityId == activityId && ua.UserId == id).Select(ua => ua.UserId).FirstOrDefaultAsync();
+            if (checkId == 0)
+                return Result.Failure(new Error
+                {
+                    Title = "Expense error",
+                    Message = "Expense participants not present in activity",
+                    Type = Shared.Results.Enums.ErrorType.Forbidden
+                });
+        }
 
-        var participantsCount = await context.UsersExpenses.CountAsync(ue => ue.ExpenseId == expenseData.Id, CancellationToken:ct);
+        var participantsCount = await context.UsersExpenses.CountAsync(ue => ue.ExpenseId == expenseData.Id);
         var totalParticipants = userIds.Count + participantsCount;
 
         var newUserExpenseParticipants = userIds.Select(debtorId => new UserExpense
@@ -95,7 +103,7 @@ public class ExpenseService(FriendStuffDbContext context) : IExpenseService
 
         await context.UsersExpenses
             .Where(ue => ue.ExpenseId == expenseData.Id)
-            .ExecuteUpdateAsync(setters => setters.SetProperty(s => s.AmountOwed,expenseData.Amount / totalParticipants), CancellationToken:ct);
+            .ExecuteUpdateAsync(setters => setters.SetProperty(s => s.AmountOwed,expenseData.Amount / totalParticipants));
 
         context.UsersExpenses.AddRange(newUserExpenseParticipants);
         await context.SaveChangesAsync(ct);
