@@ -1,11 +1,16 @@
-﻿namespace FriendStuff.Features.Expenses.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace FriendStuff.Features.Expenses.DTOs
 {
     public class AddExpenseParticipantRequest
     {
-        public List<string> Usernames = [];
+        [Required]
+        public List<string> Usernames {get;set;}= [];
 
-        public string PublicActivityId = string.Empty;
-        
-        public string PublicExpenseId = string.Empty;
+        [Required]
+        public string PublicActivityId { get; set; } = string.Empty;
+
+        [Required]
+        public string PublicExpenseId { get; set; } = string.Empty;
     }
 }

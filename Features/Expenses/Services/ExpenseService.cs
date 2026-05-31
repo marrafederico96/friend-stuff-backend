@@ -32,11 +32,12 @@ public class ExpenseService(FriendStuffDbContext context) : IExpenseService
             Description = request.Description,
             PayerId = payerId,
             Type = request.Type,
-            Participants = 
+            Participants =
             [
-                new UserExpense 
-                { 
-                    AmountOwed = request.Amount
+                new UserExpense
+                {
+                    AmountOwed = request.Amount,
+                    DebtorId = payerId
                 }
             ]
         };
@@ -62,7 +63,7 @@ public class ExpenseService(FriendStuffDbContext context) : IExpenseService
 
         var expenseData = await context.Expenses
             .Where(e => e.PublicId.ToString() == request.PublicExpenseId)
-            .Select(e => new { e.Id, e.Amount})
+            .Select(e => new { e.Id, e.Amount, e.PayerId})
             .FirstOrDefaultAsync(ct);
 
         if (expenseData == null)
@@ -79,18 +80,26 @@ public class ExpenseService(FriendStuffDbContext context) : IExpenseService
            .Select(u => u.Id)
            .ToListAsync(ct);
 
-        var countParticipants = await context.UsersExpenses.CountAsync(e => e.Id == expenseData.Id, cancellationToken: ct);
+        // controllare che tutti gli ids fanno parte dell'attività in questione
+        // TO DO
 
-        var newUserExpenseParticipants = userIds.Select(u => new UserExpense
+        var participantsCount = await context.UsersExpenses.CountAsync(ue => ue.ExpenseId == expenseData.Id, CancellationToken:ct);
+        var totalParticipants = userIds.Count + participantsCount;
+
+        var newUserExpenseParticipants = userIds.Select(debtorId => new UserExpense
         {
-            AmountOwed = expenseData.Amount / countParticipants,
-            DebtorId = u,
+            AmountOwed = expenseData.Amount / totalParticipants,
+            DebtorId = debtorId,
             ExpenseId = expenseData.Id
         });
 
+        await context.UsersExpenses
+            .Where(ue => ue.ExpenseId == expenseData.Id)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(s => s.AmountOwed,expenseData.Amount / totalParticipants), CancellationToken:ct);
+
         context.UsersExpenses.AddRange(newUserExpenseParticipants);
         await context.SaveChangesAsync(ct);
-        
+
         return Result.Success("Expense Participants added");
     }
 }

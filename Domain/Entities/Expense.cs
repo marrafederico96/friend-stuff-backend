@@ -10,7 +10,7 @@ public class Expense
     public int Id { get; set; }
 
     [Required]
-    public Guid PublicId{ get; set; }
+    public Guid PublicId{ get; set; } = Guid.NewGuid();
 
     [Required]
     public required int PayerId { get; set; }

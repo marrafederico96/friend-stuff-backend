@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>FriendStuff</RootNamespace>
-    <UserSecretsId>43c12247-508f-452a-ab8f-c104b661e646</UserSecretsId>
+    <UserSecretsId>f9f4f039-0540-40d9-a41b-e62e9c94f199</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
