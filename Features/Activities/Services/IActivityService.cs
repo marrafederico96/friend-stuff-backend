@@ -1,3 +1,4 @@
+using FriendStuff.Domain.View;
 using FriendStuff.Features.Activities.DTOs;
 using FriendStuff.Shared.Results;
 
@@ -12,4 +13,8 @@ public interface IActivityService
     public Task<Result> AddParticipants(AddParticipantsRequest request, string username, CancellationToken ct);
 
     public Task<Result> RemoveParticipant(RemoveParticipantRequest request, string username, CancellationToken ct);
+
+    public Task<Result<List<UserActivityResponse>?>> GetUserActivities(string username);
+    public Task<Result<List<ActivityTypesResponse>>> GetActivityTypes();
+
 }

@@ -29,7 +29,7 @@ public class Expense
     public required decimal Amount { get; set; }
 
     [Required]
-    public required ExpenseType Type { get; set; }
+    public required int TypeId { get; set; }
 
     [Required]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -42,5 +42,8 @@ public class Expense
 
     [ForeignKey(nameof(ActivityId))]
     public Activity? Activity { get; set; }
+
+    [ForeignKey(nameof(TypeId))]
+    public ExpenseType? Type { get; set; }
 
 }

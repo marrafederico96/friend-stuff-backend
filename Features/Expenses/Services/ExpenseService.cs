@@ -1,5 +1,6 @@
 using FriendStuff.Data;
 using FriendStuff.Domain.Entities;
+using FriendStuff.Domain.View;
 using FriendStuff.Features.Expenses.DTOs;
 using FriendStuff.Shared.Results;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,11 @@ public class ExpenseService(FriendStuffDbContext context) : IExpenseService
             .Select(a => a.Id)
             .FirstOrDefaultAsync(ct);
 
+        var expenseTypeId = await context.ExpenseTypes
+            .Where(t => t.NormalizedName == request.Type.Trim().ToUpperInvariant())
+            .Select(t => t.Id)
+            .FirstOrDefaultAsync();
+
         var newExpense = new Expense
         {
             ActivityId = activityId,
@@ -31,7 +37,7 @@ public class ExpenseService(FriendStuffDbContext context) : IExpenseService
             Name = request.Name,
             Description = request.Description,
             PayerId = payerId,
-            Type = request.Type,
+            TypeId = expenseTypeId,
             Participants =
             [
                 new UserExpense
@@ -109,5 +115,20 @@ public class ExpenseService(FriendStuffDbContext context) : IExpenseService
         await context.SaveChangesAsync(ct);
 
         return Result.Success("Expense Participants added");
+    }
+
+    public async Task<Result<List<ExpenseTypesResponse>>> GetExpenseTypes()
+    {
+
+        var expenseTypes = await context.ExpenseTypesResponse
+            .Select(at => new ExpenseTypesResponse
+            {
+                Name = at.Name,
+                NormalizedName = at.NormalizedName,
+                PublicId = at.PublicId.ToString()
+            })
+            .ToListAsync();
+
+        return Result<List<ExpenseTypesResponse>>.Success(expenseTypes);
     }
 }

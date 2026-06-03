@@ -1,6 +1,7 @@
 using FriendStuff.Data;
 using FriendStuff.Domain.Entities;
 using FriendStuff.Domain.Enums;
+using FriendStuff.Domain.View;
 using FriendStuff.Features.Activities.DTOs;
 using FriendStuff.Shared.Results;
 using FriendStuff.Shared.Results.Enums;
@@ -41,13 +42,19 @@ public class ActivityService(FriendStuffDbContext context) : IActivityService
                 Type = ErrorType.Conflict
             });
 
+        var activityTypeId = await context.ActivityTypes
+            .AsNoTracking()
+            .Where(t => t.NormalizedName == request.Type.ToUpperInvariant().Trim())
+            .Select(t => t.Id)
+            .FirstOrDefaultAsync(ct);
+
         var newActivity = new Activity
         {
             AdminId = adminId,
+            TypeId = activityTypeId,
             Name = request.Name,
             NormalizedName = normalizedActivityName,
             Description = request.Description,
-            Type = request.Type,
             StartDate = request.StartDate,
             EndDate = request.EndDate,
             Participants =
@@ -189,4 +196,43 @@ public class ActivityService(FriendStuffDbContext context) : IActivityService
 
         return Result.Success("Participant removed");
     }
+
+    public async Task<Result<List<UserActivityResponse>?>> GetUserActivities(string username)
+    {
+        var normalizedUsername = username.Trim().ToUpperInvariant();
+        var userId = await context.Users
+            .Where(u => u.NormalizedUsername == normalizedUsername)
+            .Select(u => u.Id)
+            .FirstOrDefaultAsync();
+
+        var response = await context.GetUserActivities(userId).ToListAsync();
+
+        var activityResponse = response
+            .Select(a => new UserActivityResponse
+            {
+                PublicId = a.PublicId,
+                Name = a.Name,
+                Description = a.Description,
+                EndDate = a.EndDate,
+                StartDate = a.StartDate,
+            }).OrderBy(a => a.StartDate).ToList();
+
+
+        return Result<List<UserActivityResponse>?>.Success(activityResponse);
+    }
+
+    public async Task<Result<List<ActivityTypesResponse>>> GetActivityTypes() {
+
+        var activityTypes = await context.ActivityTypesResponse
+            .Select(at => new ActivityTypesResponse
+            {
+                Name = at.Name,
+                NormalizedName = at.NormalizedName,
+                PublicId = at.PublicId
+            })
+            .ToListAsync();
+
+        return Result<List<ActivityTypesResponse>>.Success(activityTypes);
+    }
+
 }

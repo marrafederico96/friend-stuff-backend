@@ -48,4 +48,20 @@ public class ActivityController(IActivityService activityService) : ControllerBa
         var result = await activityService.RemoveParticipant(request, username, ct);
         return result.ToActionResult();
     }
+
+    [HttpGet]
+    public async Task<IActionResult> GetUserActivities()
+    {
+
+        var username = User.Identity?.Name ?? throw new ArgumentException("JWT not valid");
+        var response = await activityService.GetUserActivities(username);
+        return response.ToActionResult();
+
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetActivityTypes() {
+        var response = await activityService.GetActivityTypes();
+        return response.ToActionResult();
+    }
 }

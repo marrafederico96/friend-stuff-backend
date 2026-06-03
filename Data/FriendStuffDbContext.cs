@@ -1,5 +1,8 @@
 using FriendStuff.Data.Configurations;
 using FriendStuff.Domain.Entities;
+using FriendStuff.Domain.View;
+using FriendStuff.Features.Activities.DTOs;
+using FriendStuff.Features.Expenses.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace FriendStuff.Data;
@@ -12,6 +15,18 @@ public class FriendStuffDbContext(DbContextOptions<FriendStuffDbContext> options
     public DbSet<UserActivity> UsersActivities { get; set; }
     public DbSet<Expense> Expenses { get; set; }
     public DbSet<UserExpense> UsersExpenses { get; set; }
+    public DbSet<ActivityType> ActivityTypes { get; set; }
+    public DbSet<ExpenseType> ExpenseTypes { get; set; }
+
+    public DbSet<UserActivityResponse> UserActivitiesResponse { get; set; }
+    public DbSet<ActivityTypesResponse> ActivityTypesResponse { get; set; }
+    public DbSet<ExpenseTypesResponse> ExpenseTypesResponse { get; set; }
+
+    [DbFunction("getUserActivities", "dbo")]
+    public IQueryable<UserActivityResponse> GetUserActivities(int userId)
+    {
+        return FromExpression(() => GetUserActivities(userId));
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -21,5 +36,18 @@ public class FriendStuffDbContext(DbContextOptions<FriendStuffDbContext> options
         modelBuilder.ApplyConfiguration(new ActivityConfiguration());
         modelBuilder.ApplyConfiguration(new ExpenseConfguration());
         modelBuilder.ApplyConfiguration(new UserExpenseConfiguration());
-    }
+        modelBuilder.ApplyConfiguration(new ActivityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new ExpenseTypeConfiguration());
+
+        modelBuilder.Entity<UserActivityResponse>().HasNoKey();
+        modelBuilder.Entity<ActivityTypesResponse>(mb =>
+        {
+            mb.HasNoKey();
+            mb.ToView("GetActivityTypes");
+        });
+        modelBuilder.Entity<ExpenseTypesResponse>(mb =>
+        {
+            mb.HasNoKey();
+            mb.ToView("GetExpenseTypes");
+        });    }
 }

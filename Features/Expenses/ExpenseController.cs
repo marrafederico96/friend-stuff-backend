@@ -27,5 +27,11 @@ namespace FriendStuff.Features.Expenses
             var result = await expenseService.AddExpenseParticipant(request, ct);
             return result.ToActionResult();
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetExpenseTypes() {
+            var response = await expenseService.GetExpenseTypes();
+            return response.ToActionResult();
+        }
     }
 }

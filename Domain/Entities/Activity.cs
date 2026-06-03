@@ -1,7 +1,5 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using FriendStuff.Domain.Enums;
 
 namespace FriendStuff.Domain.Entities;
 
@@ -28,7 +26,7 @@ public class Activity
     public string? Description { get; set; }
 
     [Required]
-    public required ActivityType Type { get; set; }
+    public required int TypeId { get; set; }
 
     [Required]
     public required DateOnly StartDate { get; set; }
@@ -45,5 +43,8 @@ public class Activity
 
     [ForeignKey(nameof(AdminId))]
     public User? Admin { get; set; }
+
+    [ForeignKey(nameof(TypeId))]
+    public ActivityType? Type { get; set; }
 
 }

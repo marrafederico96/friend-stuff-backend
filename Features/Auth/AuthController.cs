@@ -1,6 +1,8 @@
 using FriendStuff.Extensions;
 using FriendStuff.Features.Auth.DTOs;
 using FriendStuff.Features.Auth.Services;
+using FriendStuff.Shared.Results;
+using FriendStuff.Shared.Results.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -40,7 +42,8 @@ namespace FriendStuff.Features.Auth
                 return Ok(new { jwt = accessToken });
             }
 
-            return Unauthorized(new { error = "Wrong credentials" });
+            var error = new Error{ Title="Auth error", Message ="Wrong credentials", Type= ErrorType.Unauthorized};
+            return Unauthorized(error);
         }
 
         [HttpPost]
@@ -86,7 +89,8 @@ namespace FriendStuff.Features.Auth
                 return Ok(new { jwt = accessToken });
             }
 
-            return Unauthorized(new { error = "Wrong credentials" });
+            var error = new Error{ Title="Auth error", Message ="Wrong credentials", Type= ErrorType.Unauthorized};
+            return Unauthorized(error);
         }
 
     }
