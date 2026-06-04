@@ -11,7 +11,5 @@ public record class CreateExpenseRequest
 
     [Required] public string ActivityPublicId { get; set; } = string.Empty;
 
-    [Required] public string Type { get; set; } = string.Empty;
-
     [Required] public decimal Amount { get; set; }
 }

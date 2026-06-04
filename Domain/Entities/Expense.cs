@@ -10,7 +10,7 @@ public class Expense
     public int Id { get; set; }
 
     [Required]
-    public Guid PublicId{ get; set; } = Guid.NewGuid();
+    public Guid PublicId { get; set; } = Guid.NewGuid();
 
     [Required]
     public required int PayerId { get; set; }
@@ -29,9 +29,6 @@ public class Expense
     public required decimal Amount { get; set; }
 
     [Required]
-    public required int TypeId { get; set; }
-
-    [Required]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation property
@@ -42,8 +39,5 @@ public class Expense
 
     [ForeignKey(nameof(ActivityId))]
     public Activity? Activity { get; set; }
-
-    [ForeignKey(nameof(TypeId))]
-    public ExpenseType? Type { get; set; }
 
 }

@@ -24,10 +24,6 @@ public class ExpenseService(FriendStuffDbContext context) : IExpenseService
             .Select(a => a.Id)
             .FirstOrDefaultAsync(ct);
 
-        var expenseTypeId = await context.ExpenseTypes
-            .Where(t => t.NormalizedName == request.Type.Trim().ToUpperInvariant())
-            .Select(t => t.Id)
-            .FirstOrDefaultAsync(ct);
 
         var newExpense = new Expense
         {
@@ -36,7 +32,6 @@ public class ExpenseService(FriendStuffDbContext context) : IExpenseService
             Name = request.Name,
             Description = request.Description,
             PayerId = payerId,
-            TypeId = expenseTypeId,
             Participants =
             [
                 new UserExpense
@@ -117,18 +112,4 @@ public class ExpenseService(FriendStuffDbContext context) : IExpenseService
         return Result.Success("Expense Participants added");
     }
 
-    public async Task<Result<List<ExpenseTypesResponse>>> GetExpenseTypes()
-    {
-
-        var expenseTypes = await context.ExpenseTypesResponse
-            .Select(at => new ExpenseTypesResponse
-            {
-                Name = at.Name,
-                NormalizedName = at.NormalizedName,
-                PublicId = at.PublicId.ToString()
-            })
-            .ToListAsync();
-
-        return Result<List<ExpenseTypesResponse>>.Success(expenseTypes);
-    }
 }

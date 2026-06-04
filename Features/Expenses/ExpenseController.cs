@@ -28,10 +28,5 @@ namespace FriendStuff.Features.Expenses
             return result.ToActionResult();
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetExpenseTypes() {
-            var response = await expenseService.GetExpenseTypes();
-            return response.ToActionResult();
-        }
     }
 }

@@ -24,8 +24,6 @@ public class UserService(FriendStuffDbContext context) : IUserService
             .Include(e => e.Expense)
             .ToListAsync(ct);
 
-        var totalBalance = payerExpenses.Sum(e => e.Amount) - debtorExpenses.Sum(e => e.AmountOwed);
-
         var userDebtsToMe = await context.UsersExpenses
             .Where(e => payerExpenses.Select(e => e.Id).Contains(e.ExpenseId) && e.DebtorId != userId)
             .GroupBy(e => e.DebtorId)
@@ -35,7 +33,6 @@ public class UserService(FriendStuffDbContext context) : IUserService
                 Amount = g.Sum(e => e.AmountOwed)
             })
             .ToListAsync(ct);
-
 
         var myDebtsToOthers = debtorExpenses
             .GroupBy(e => e.Expense!.PayerId)
