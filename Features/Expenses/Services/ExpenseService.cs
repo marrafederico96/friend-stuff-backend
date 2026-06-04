@@ -27,7 +27,7 @@ public class ExpenseService(FriendStuffDbContext context) : IExpenseService
         var expenseTypeId = await context.ExpenseTypes
             .Where(t => t.NormalizedName == request.Type.Trim().ToUpperInvariant())
             .Select(t => t.Id)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(ct);
 
         var newExpense = new Expense
         {

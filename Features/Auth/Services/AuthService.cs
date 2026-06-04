@@ -3,10 +3,10 @@ using FriendStuff.Features.Auth.DTOs;
 using FriendStuff.Shared.Results;
 using Microsoft.EntityFrameworkCore;
 using FriendStuff.Shared.Results.Enums;
-using FriendStuff.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Cryptography;
 using System.Text;
+using FriendStuff.Domain.Entities;
 
 namespace FriendStuff.Features.Auth.Services;
 

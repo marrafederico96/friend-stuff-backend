@@ -5,6 +5,7 @@ using FriendStuff.Features.Activities.Services;
 using FriendStuff.Features.Auth.DTOs;
 using FriendStuff.Features.Auth.Services;
 using FriendStuff.Features.Expenses.Services;
+using FriendStuff.Features.UserProfile.Services;
 using FriendStuff.Shared.Results;
 using FriendStuff.Shared.Results.Enums;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -62,6 +63,7 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IActivityService, ActivityService>();
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options =>
