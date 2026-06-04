@@ -39,15 +39,22 @@ public class FriendStuffDbContext(DbContextOptions<FriendStuffDbContext> options
         modelBuilder.ApplyConfiguration(new ActivityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new ExpenseTypeConfiguration());
 
-        modelBuilder.Entity<UserActivityResponse>().HasNoKey();
+        modelBuilder.Entity<UserActivityResponse>(mb =>
+        {
+            mb.HasNoKey();
+            mb.ToFunction("getUserActivities");
+        });
+
         modelBuilder.Entity<ActivityTypesResponse>(mb =>
         {
             mb.HasNoKey();
             mb.ToView("GetActivityTypes");
         });
+
         modelBuilder.Entity<ExpenseTypesResponse>(mb =>
         {
             mb.HasNoKey();
             mb.ToView("GetExpenseTypes");
-        });    }
+        });
+    }
 }
