@@ -1,5 +1,4 @@
-
-namespace FriendStuff.Domain.View;
+namespace FriendStuff.Features.Activities.DTOs;
 
 public record UserActivityResponse
 {

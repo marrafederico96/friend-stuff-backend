@@ -1,7 +1,6 @@
 using FriendStuff.Data;
 using FriendStuff.Domain.Entities;
 using FriendStuff.Domain.Enums;
-using FriendStuff.Domain.View;
 using FriendStuff.Features.Activities.DTOs;
 using FriendStuff.Shared.Results;
 using FriendStuff.Shared.Results.Enums;

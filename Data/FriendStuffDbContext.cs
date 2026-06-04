@@ -1,6 +1,5 @@
 using FriendStuff.Data.Configurations;
 using FriendStuff.Domain.Entities;
-using FriendStuff.Domain.View;
 using FriendStuff.Features.Activities.DTOs;
 using FriendStuff.Features.Expenses.DTOs;
 using Microsoft.EntityFrameworkCore;

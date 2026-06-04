@@ -1,6 +1,5 @@
 using FriendStuff.Data;
 using FriendStuff.Domain.Entities;
-using FriendStuff.Domain.View;
 using FriendStuff.Features.Expenses.DTOs;
 using FriendStuff.Shared.Results;
 using Microsoft.EntityFrameworkCore;
@@ -69,7 +68,7 @@ public class ExpenseService(FriendStuffDbContext context) : IExpenseService
 
         var expenseData = await context.Expenses
             .Where(e => e.PublicId.ToString() == request.PublicExpenseId)
-            .Select(e => new { e.Id, e.Amount, e.PayerId})
+            .Select(e => new { e.Id, e.Amount, e.PayerId })
             .FirstOrDefaultAsync(ct);
 
         if (expenseData == null)
@@ -86,7 +85,8 @@ public class ExpenseService(FriendStuffDbContext context) : IExpenseService
            .Select(u => u.Id)
            .ToListAsync(ct);
 
-        foreach(var id in userIds) {
+        foreach (var id in userIds)
+        {
             var checkId = await context.UsersActivities.Where(ua => ua.ActivityId == activityId && ua.UserId == id).Select(ua => ua.UserId).FirstOrDefaultAsync();
             if (checkId == 0)
                 return Result.Failure(new Error
@@ -109,7 +109,7 @@ public class ExpenseService(FriendStuffDbContext context) : IExpenseService
 
         await context.UsersExpenses
             .Where(ue => ue.ExpenseId == expenseData.Id)
-            .ExecuteUpdateAsync(setters => setters.SetProperty(s => s.AmountOwed,expenseData.Amount / totalParticipants));
+            .ExecuteUpdateAsync(setters => setters.SetProperty(s => s.AmountOwed, expenseData.Amount / totalParticipants));
 
         context.UsersExpenses.AddRange(newUserExpenseParticipants);
         await context.SaveChangesAsync(ct);
