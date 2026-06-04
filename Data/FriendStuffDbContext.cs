@@ -18,7 +18,7 @@ public class FriendStuffDbContext(DbContextOptions<FriendStuffDbContext> options
     public DbSet<ActivityType> ActivityTypes { get; set; }
     public DbSet<ExpenseType> ExpenseTypes { get; set; }
 
-    public DbSet<UserActivityResponse> UserActivitiesResponse { get; set; }
+    // View
     public DbSet<ActivityTypesResponse> ActivityTypesResponse { get; set; }
     public DbSet<ExpenseTypesResponse> ExpenseTypesResponse { get; set; }
 
