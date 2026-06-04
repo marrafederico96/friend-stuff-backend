@@ -24,8 +24,8 @@ public class TokenService(IOptions<TokenSettings> options, FriendStuffDbContext 
         {
             Subject = new ClaimsIdentity(
             [
-                new Claim(ClaimTypes.Name, username),
-                new Claim(ClaimTypes.Email, emailAddress)
+                new Claim(JwtRegisteredClaimNames.Name, username),
+                new Claim(JwtRegisteredClaimNames.Email, emailAddress)
             ]),
 
             Issuer = tokenSettings.Issuer,

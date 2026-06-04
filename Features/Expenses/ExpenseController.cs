@@ -15,7 +15,7 @@ namespace FriendStuff.Features.Expenses
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateExpenseRequest request, CancellationToken ct)
         {
-            var payerUsername = User.Identity?.Name ?? throw new ArgumentException("JWT not valid");
+            var payerUsername = User.FindFirst("name")?.Value ?? throw new ArgumentException("JWT not valid");
 
             var result = await expenseService.CreateExpense(request, payerUsername, ct);
             return result.ToActionResult();

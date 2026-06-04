@@ -216,6 +216,7 @@ public class ActivityService(FriendStuffDbContext context) : IActivityService
                 Name = a.Name,
                 Description = a.Description,
                 ActivityType = a.ActivityType,
+                AdminUsername = a.AdminUsername,
                 EndDate = a.EndDate,
                 StartDate = a.StartDate,
             }).OrderBy(a => a.StartDate).ToList();
