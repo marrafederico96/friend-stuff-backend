@@ -29,7 +29,7 @@ public class UserService(FriendStuffDbContext context) : IUserService
         var userDebtsToMe = await context.UsersExpenses
             .Where(e => payerExpenses.Select(e => e.Id).Contains(e.ExpenseId) && e.DebtorId != userId)
             .GroupBy(e => e.DebtorId)
-            .Select(g => new BalanceResponse
+            .Select(g => new
             {
                 UserId = g.Key,
                 Amount = g.Sum(e => e.AmountOwed)
@@ -38,8 +38,8 @@ public class UserService(FriendStuffDbContext context) : IUserService
 
 
         var myDebtsToOthers = debtorExpenses
-            .GroupBy(e => e.Expense.PayerId)
-            .Select(g => new BalanceResponse
+            .GroupBy(e => e.Expense!.PayerId)
+            .Select(g => new
             {
                 UserId = g.Key,
                 Amount = g.Sum(e => e.AmountOwed)
@@ -49,17 +49,22 @@ public class UserService(FriendStuffDbContext context) : IUserService
             .Union(myDebtsToOthers.Select(x => x.UserId))
             .ToList();
 
+        var usernames = await context.Users
+            .Where(u => allUserIds.Contains(u.Id))
+            .ToDictionaryAsync(u => u.Id, u => u.Username, cancellationToken: ct);
+
         var finalBalances = allUserIds.Select(id =>
         {
-            var credito = userDebtsToMe.FirstOrDefault(x => x.UserId == id)?.Amount ?? 0;
-            var debito = myDebtsToOthers.FirstOrDefault(x => x.UserId == id)?.Amount ?? 0;
+            var credit = userDebtsToMe.FirstOrDefault(x => x.UserId == id)?.Amount ?? 0;
+            var debt = myDebtsToOthers.FirstOrDefault(x => x.UserId == id)?.Amount ?? 0;
 
             return new BalanceResponse
             {
-                UserId = id,
-                Amount = credito - debito
+                Username = usernames[id],
+                Amount = credit - debt
             };
         }).ToList();
+
 
         return Result<List<BalanceResponse>>.Success(finalBalances);
     }
