@@ -22,12 +22,6 @@ public class FriendStuffDbContext(DbContextOptions<FriendStuffDbContext> options
     public DbSet<ActivityTypesResponse> ActivityTypesResponse { get; set; }
     public DbSet<ExpenseTypesResponse> ExpenseTypesResponse { get; set; }
 
-    [DbFunction("getUserActivities", "dbo")]
-    public IQueryable<UserActivityResponse> GetUserActivities(int userId)
-    {
-        return FromExpression(() => GetUserActivities(userId));
-    }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new UserConfiguration());
@@ -38,12 +32,6 @@ public class FriendStuffDbContext(DbContextOptions<FriendStuffDbContext> options
         modelBuilder.ApplyConfiguration(new UserExpenseConfiguration());
         modelBuilder.ApplyConfiguration(new ActivityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new ExpenseTypeConfiguration());
-
-        modelBuilder.Entity<UserActivityResponse>(mb =>
-        {
-            mb.HasNoKey();
-            mb.ToFunction("getUserActivities");
-        });
 
         modelBuilder.Entity<ActivityTypesResponse>(mb =>
         {

@@ -60,8 +60,16 @@ public class ActivityController(IActivityService activityService) : ControllerBa
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetActivityTypes() {
+    public async Task<IActionResult> GetActivityTypes()
+    {
         var response = await activityService.GetActivityTypes();
+        return response.ToActionResult();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateActivityType([FromBody] CreateActivityTypeRequest request, CancellationToken ct)
+    {
+        var response = await activityService.CreateActivityType(request, ct);
         return response.ToActionResult();
     }
 }

@@ -205,7 +205,10 @@ public class ActivityService(FriendStuffDbContext context) : IActivityService
             .Select(u => u.Id)
             .FirstOrDefaultAsync();
 
-        var response = await context.GetUserActivities(userId).ToListAsync();
+        var response = await context
+            .Database
+            .SqlQuery<UserActivityResponse>($"SELECT * FROM dbo.getUserActivities({userId})").ToListAsync();
+
 
         var activityResponse = response
             .Select(a => new UserActivityResponse
@@ -221,7 +224,8 @@ public class ActivityService(FriendStuffDbContext context) : IActivityService
         return Result<List<UserActivityResponse>?>.Success(activityResponse);
     }
 
-    public async Task<Result<List<ActivityTypesResponse>>> GetActivityTypes() {
+    public async Task<Result<List<ActivityTypesResponse>>> GetActivityTypes()
+    {
 
         var activityTypes = await context.ActivityTypesResponse
             .Select(at => new ActivityTypesResponse
@@ -233,6 +237,19 @@ public class ActivityService(FriendStuffDbContext context) : IActivityService
             .ToListAsync();
 
         return Result<List<ActivityTypesResponse>>.Success(activityTypes);
+    }
+
+    public async Task<Result> CreateActivityType(CreateActivityTypeRequest request, CancellationToken ct)
+    {
+        var newActivityType = new ActivityType
+        {
+            Name = request.Name,
+            NormalizedName = request.Name.Trim().ToUpperInvariant()
+        };
+        context.ActivityTypes.Add(newActivityType);
+        await context.SaveChangesAsync(ct);
+
+        return Result.Success("Activity type created");
     }
 
 }
