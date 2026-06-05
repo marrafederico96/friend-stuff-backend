@@ -120,4 +120,23 @@ public class ExpenseService(FriendStuffDbContext context) : IExpenseService
 
         return Result.Success("Expense deleted");
     }
+
+    public async Task<Result> RemoveExpenseParticipant(RemoveExpenseParticipantRequest request, CancellationToken ct)
+    {
+        var userId = await context.Users
+            .Where(u => u.NormalizedUsername == request.Username.Trim().ToUpperInvariant())
+            .Select(u => u.Id)
+            .FirstOrDefaultAsync();
+
+        var expenseId = await context.Expenses
+            .Where(e => e.PublicId.ToString() == request.ExpensePublicId)
+            .Select(e => e.Id)
+            .FirstOrDefaultAsync(ct);
+
+        await context.UsersExpenses
+            .Where(ue => ue.DebtorId == userId && ue.ExpenseId == expenseId)
+            .ExecuteDeleteAsync(ct);
+
+        return Result.Success("Expense participant removed");
+    }
 }

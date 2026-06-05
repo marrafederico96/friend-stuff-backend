@@ -195,10 +195,7 @@ public class ActivityService(FriendStuffDbContext context, IUserService userServ
             .Where(a => a.ActivityId == activityId && a.UserId == userIdToRemove)
             .ExecuteDeleteAsync(ct);
 
-        //Delete UserExpense for request.Username (user to remove)
         await context.UsersExpenses.Where(ue => ue.DebtorId == userIdToRemove).ExecuteDeleteAsync(ct);
-
-        // Refresh bilance
         await userService.GenerateUserBalance(username, ct);
 
         return Result.Success("Participant removed");

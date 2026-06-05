@@ -1,3 +1,4 @@
+using FriendStuff.Domain.Entities;
 using FriendStuff.Extensions;
 using FriendStuff.Features.Expenses.DTOs;
 using FriendStuff.Features.Expenses.Services;
@@ -32,6 +33,13 @@ namespace FriendStuff.Features.Expenses
         public async Task<IActionResult> Delete([FromQuery] string publicId, CancellationToken ct)
         {
             var result = await expenseService.DeleteExpense(publicId, ct);
+            return result.ToActionResult();
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> RemoveParticipant([FromBody] RemoveExpenseParticipantRequest request, CancellationToken ct)
+        {
+            var result = await expenseService.RemoveExpenseParticipant(request, ct);
             return result.ToActionResult();
         }
     }
