@@ -104,7 +104,7 @@ public class ExpenseService(FriendStuffDbContext context) : IExpenseService
 
         await context.UsersExpenses
             .Where(ue => ue.ExpenseId == expenseData.Id)
-            .ExecuteUpdateAsync(setters => setters.SetProperty(s => s.AmountOwed, expenseData.Amount / totalParticipants));
+            .ExecuteUpdateAsync(setters => setters.SetProperty(s => s.AmountOwed, expenseData.Amount / totalParticipants), cancellationToken: ct);
 
         context.UsersExpenses.AddRange(newUserExpenseParticipants);
         await context.SaveChangesAsync(ct);

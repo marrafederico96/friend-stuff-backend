@@ -3,13 +3,14 @@ using FriendStuff.Domain.Entities;
 using FriendStuff.Domain.Enums;
 using FriendStuff.Features.Activities.DTOs;
 using FriendStuff.Features.Expenses.DTOs;
+using FriendStuff.Features.UserProfile.Services;
 using FriendStuff.Shared.Results;
 using FriendStuff.Shared.Results.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace FriendStuff.Features.Activities.Services;
 
-public class ActivityService(FriendStuffDbContext context) : IActivityService
+public class ActivityService(FriendStuffDbContext context, IUserService userService) : IActivityService
 {
     public async Task<Result> CreateActivity(CreateActivityRequest request, string adminUsername, CancellationToken ct)
     {
@@ -193,6 +194,12 @@ public class ActivityService(FriendStuffDbContext context) : IActivityService
         await context.UsersActivities
             .Where(a => a.ActivityId == activityId && a.UserId == userIdToRemove)
             .ExecuteDeleteAsync(ct);
+
+        //Delete UserExpense for request.Username (user to remove)
+        await context.UsersExpenses.Where(ue => ue.DebtorId == userIdToRemove).ExecuteDeleteAsync(ct);
+
+        // Refresh bilance
+        await userService.GenerateUserBalance(username, ct);
 
         return Result.Success("Participant removed");
     }
