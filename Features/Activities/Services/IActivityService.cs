@@ -15,6 +15,8 @@ public interface IActivityService
 
     public Task<Result> CreateActivityType(CreateActivityTypeRequest request, CancellationToken ct);
 
+    public Task<Result<List<string>>> GetActivityParticipant(string publicId, CancellationToken ct);
+
     // View
     public Task<Result<List<UserActivityResponse>?>> GetUserActivities(string username);
     public Task<Result<UserActivityDetailsResponse>> GetUserActivity(string activityPublicId);

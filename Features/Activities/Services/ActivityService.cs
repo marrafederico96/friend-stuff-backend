@@ -271,6 +271,18 @@ public class ActivityService(FriendStuffDbContext context) : IActivityService
             });
         }
 
+        var acivityId = await context.Activities
+            .Where(a => a.PublicId == activity.PublicId)
+            .Select(a => a.Id)
+            .FirstOrDefaultAsync();
+
+        var participantIds = await context.UsersActivities
+            .Where(ua => ua.ActivityId == acivityId)
+            .Select(ua => ua.UserId)
+            .ToListAsync();
+
+        var participants = await context.Users.Where(u => participantIds.Contains(u.Id)).Select(u => u.Username).ToListAsync();
+
         var response = new UserActivityDetailsResponse
         {
             Activity = new UserActivityResponse
@@ -281,26 +293,36 @@ public class ActivityService(FriendStuffDbContext context) : IActivityService
                 EndDate = activity.EndDate,
                 StartDate = activity.StartDate,
                 Name = activity.Name,
-                PublicId = activity.PublicId
-            }
+                PublicId = activity.PublicId,
+            },
+            Expenses = await context.Expenses
+                .Where(e => e.ActivityId == acivityId)
+                .Select(e => new ExpenseInfoResponse
+                {
+                    Amount = e.Amount,
+                    ExpenseName = e.Name,
+                    ExpensePublicId = e.PublicId,
+                    ExpenseDescription = e.Description
+                }).ToListAsync()
         };
-
-        var acivityId = await context.Activities
-            .Where(a => a.PublicId == activity.PublicId)
-            .Select(a => a.Id)
-            .FirstOrDefaultAsync();
-
-        response.Expenses = await context.Expenses
-            .Where(e => e.ActivityId == acivityId)
-            .Select(e => new ExpenseInfoResponse
-            {
-                Amount = e.Amount,
-                ExpenseName = e.Name,
-                ExpensePublicId = e.PublicId,
-                ExpenseDescription = e.Description
-            }).ToListAsync();
 
         return Result<UserActivityDetailsResponse>.Success(response);
     }
 
+    public async Task<Result<List<string>>> GetActivityParticipant(string publicId, CancellationToken ct)
+    {
+        var acivityId = await context.Activities
+            .Where(a => a.PublicId.ToString() == publicId)
+            .Select(a => a.Id)
+            .FirstOrDefaultAsync();
+
+        var participantIds = await context.UsersActivities
+            .Where(ua => ua.ActivityId == acivityId)
+            .Select(ua => ua.UserId)
+            .ToListAsync();
+
+        var participants = await context.Users.Where(u => participantIds.Contains(u.Id)).Select(u => u.Username).ToListAsync(ct);
+        return Result<List<string>>.Success(participants);
+
+    }
 }

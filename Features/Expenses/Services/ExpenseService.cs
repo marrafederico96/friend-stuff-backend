@@ -92,7 +92,7 @@ public class ExpenseService(FriendStuffDbContext context) : IExpenseService
                 });
         }
 
-        var participantsCount = await context.UsersExpenses.CountAsync(ue => ue.ExpenseId == expenseData.Id);
+        var participantsCount = await context.UsersExpenses.CountAsync(ue => ue.ExpenseId == expenseData.Id, cancellationToken: ct);
         var totalParticipants = userIds.Count + participantsCount;
 
         var newUserExpenseParticipants = userIds.Select(debtorId => new UserExpense

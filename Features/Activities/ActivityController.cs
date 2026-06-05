@@ -78,6 +78,12 @@ public class ActivityController(IActivityService activityService) : ControllerBa
 
         var response = await activityService.GetUserActivity(publicActivityId);
         return response.ToActionResult();
+    }
 
+    [HttpGet]
+    public async Task<IActionResult> GetActivityParticipants([FromQuery] string publicId, CancellationToken ct)
+    {
+        var response = await activityService.GetActivityParticipant(publicId, ct);
+        return response.ToActionResult();
     }
 }
