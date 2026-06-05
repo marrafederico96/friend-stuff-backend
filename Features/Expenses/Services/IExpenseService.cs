@@ -9,4 +9,5 @@ public interface IExpenseService
     public Task<Result> AddExpenseParticipant(AddExpenseParticipantRequest request, CancellationToken ct);
     public Task<Result> DeleteExpense(string publicId, CancellationToken ct);
 
+
 }

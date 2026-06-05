@@ -33,7 +33,6 @@ namespace FriendStuff.Features.Expenses
         {
             var result = await expenseService.DeleteExpense(publicId, ct);
             return result.ToActionResult();
-
         }
     }
 }

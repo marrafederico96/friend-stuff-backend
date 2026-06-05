@@ -276,12 +276,26 @@ public class ActivityService(FriendStuffDbContext context) : IActivityService
             .Select(a => a.Id)
             .FirstOrDefaultAsync();
 
-        var participantIds = await context.UsersActivities
-            .Where(ua => ua.ActivityId == acivityId)
-            .Select(ua => ua.UserId)
+
+        var expenses = await context.Expenses
+            .Where(e => e.ActivityId == acivityId)
             .ToListAsync();
 
-        var participants = await context.Users.Where(u => participantIds.Contains(u.Id)).Select(u => u.Username).ToListAsync();
+        var expenseResponses = new List<ExpenseInfoResponse>();
+        foreach (var expense in expenses)
+        {
+            var payerUsername = await context.Users.Where(u => u.Id == expense.PayerId).Select(u => u.Username).FirstOrDefaultAsync() ?? throw new ArgumentException("PAyer not found");
+
+            expenseResponses.Add(new ExpenseInfoResponse
+            {
+                Amount = expense.Amount,
+                ExpenseName = expense.Name,
+                ExpensePublicId = expense.PublicId,
+                PayerUsername = payerUsername,
+                ExpenseDescription = expense.Description,
+                Participants = await GetExpenseParticipants(expense.Id)
+            });
+        }
 
         var response = new UserActivityDetailsResponse
         {
@@ -295,15 +309,7 @@ public class ActivityService(FriendStuffDbContext context) : IActivityService
                 Name = activity.Name,
                 PublicId = activity.PublicId,
             },
-            Expenses = await context.Expenses
-                .Where(e => e.ActivityId == acivityId)
-                .Select(e => new ExpenseInfoResponse
-                {
-                    Amount = e.Amount,
-                    ExpenseName = e.Name,
-                    ExpensePublicId = e.PublicId,
-                    ExpenseDescription = e.Description
-                }).ToListAsync()
+            Expenses = expenseResponses
         };
 
         return Result<UserActivityDetailsResponse>.Success(response);
@@ -314,7 +320,7 @@ public class ActivityService(FriendStuffDbContext context) : IActivityService
         var acivityId = await context.Activities
             .Where(a => a.PublicId.ToString() == publicId)
             .Select(a => a.Id)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(ct);
 
         var participantIds = await context.UsersActivities
             .Where(ua => ua.ActivityId == acivityId)
@@ -323,6 +329,23 @@ public class ActivityService(FriendStuffDbContext context) : IActivityService
 
         var participants = await context.Users.Where(u => participantIds.Contains(u.Id)).Select(u => u.Username).ToListAsync(ct);
         return Result<List<string>>.Success(participants);
-
     }
+
+    private async Task<List<string>> GetExpenseParticipants(int expenseId)
+    {
+        var participantsIds = await context.UsersExpenses
+            .AsNoTracking()
+            .Where(ue => ue.ExpenseId == expenseId)
+            .Select(ue => ue.DebtorId)
+            .ToListAsync();
+
+        var participants = await context.Users
+            .AsNoTracking()
+            .Where(u => participantsIds.Contains(u.Id))
+            .Select(u => u.Username)
+            .ToListAsync();
+
+        return participants;
+    }
+
 }
