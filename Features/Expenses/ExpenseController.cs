@@ -28,5 +28,12 @@ namespace FriendStuff.Features.Expenses
             return result.ToActionResult();
         }
 
+        [HttpDelete]
+        public async Task<IActionResult> Delete([FromQuery] string publicId, CancellationToken ct)
+        {
+            var result = await expenseService.DeleteExpense(publicId, ct);
+            return result.ToActionResult();
+
+        }
     }
 }

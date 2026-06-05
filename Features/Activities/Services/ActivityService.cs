@@ -2,6 +2,7 @@ using FriendStuff.Data;
 using FriendStuff.Domain.Entities;
 using FriendStuff.Domain.Enums;
 using FriendStuff.Features.Activities.DTOs;
+using FriendStuff.Features.Expenses.DTOs;
 using FriendStuff.Shared.Results;
 using FriendStuff.Shared.Results.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -251,6 +252,55 @@ public class ActivityService(FriendStuffDbContext context) : IActivityService
         await context.SaveChangesAsync(ct);
 
         return Result.Success("Activity type created");
+    }
+
+    public async Task<Result<UserActivityDetailsResponse>> GetUserActivity(string activityPublicId)
+    {
+        var activity = await context
+             .Database
+             .SqlQuery<UserActivityResponse>($"SELECT * FROM dbo.getUserActivity({activityPublicId})")
+             .FirstOrDefaultAsync();
+
+        if (activity == null)
+        {
+            return Result<UserActivityDetailsResponse>.Failure(new Error
+            {
+                Title = "Get activity error",
+                Message = "Activity not found",
+                Type = ErrorType.NotFound
+            });
+        }
+
+        var response = new UserActivityDetailsResponse
+        {
+            Activity = new UserActivityResponse
+            {
+                ActivityType = activity.ActivityType,
+                AdminUsername = activity.AdminUsername,
+                Description = activity.Description,
+                EndDate = activity.EndDate,
+                StartDate = activity.StartDate,
+                Name = activity.Name,
+                PublicId = activity.PublicId
+            }
+        };
+
+        var acivityId = await context.Activities
+            .Where(a => a.PublicId == activity.PublicId)
+            .Select(a => a.Id)
+            .FirstOrDefaultAsync();
+
+        response.Expenses = await context.Expenses
+            .Where(e => e.ActivityId == acivityId)
+            .Select(e => new ExpenseInfoResponse
+            {
+                Amount = e.Amount,
+                ExpenseName = e.Name,
+                ExpensePublicId = e.PublicId,
+                ExpenseDescription = e.Description
+            }).ToListAsync();
+
+        return Result<UserActivityDetailsResponse>.Success(response);
     }
 
 }

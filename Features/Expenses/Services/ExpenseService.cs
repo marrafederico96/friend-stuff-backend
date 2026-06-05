@@ -112,4 +112,12 @@ public class ExpenseService(FriendStuffDbContext context) : IExpenseService
         return Result.Success("Expense Participants added");
     }
 
+    public async Task<Result> DeleteExpense(string publicId, CancellationToken ct)
+    {
+        await context.Expenses
+            .Where(e => e.PublicId.ToString() == publicId)
+            .ExecuteDeleteAsync(ct);
+
+        return Result.Success("Expense deleted");
+    }
 }

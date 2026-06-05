@@ -17,6 +17,7 @@ public interface IActivityService
 
     // View
     public Task<Result<List<UserActivityResponse>?>> GetUserActivities(string username);
+    public Task<Result<UserActivityDetailsResponse>> GetUserActivity(string activityPublicId);
     public Task<Result<List<ActivityTypesResponse>>> GetActivityTypes();
 
 }
