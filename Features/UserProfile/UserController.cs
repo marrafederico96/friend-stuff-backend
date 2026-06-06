@@ -19,4 +19,13 @@ public class UserController(IUserService userService) : ControllerBase
         return response.ToActionResult();
     }
 
+    [HttpGet]
+    public async Task<IActionResult> PersonalBalance(CancellationToken ct)
+    {
+        var username = User.FindFirst("name")?.Value ?? throw new ArgumentException("JWT not valid");
+        var response = await userService.GetPersonalBalance(username, ct);
+
+        return response.ToActionResult();
+    }
+
 }
