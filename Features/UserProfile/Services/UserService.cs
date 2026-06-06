@@ -10,58 +10,52 @@ public class UserService(FriendStuffDbContext context) : IUserService
     public async Task<Result<List<BalanceResponse>>> GenerateUserBalance(string username, CancellationToken ct)
     {
         var normalizedUsername = username.Trim().ToUpperInvariant();
+
         var userId = await context.Users
             .Where(u => u.NormalizedUsername == normalizedUsername)
-            .Select(u => u.Id).FirstOrDefaultAsync(ct);
+            .Select(u => u.Id)
+            .FirstOrDefaultAsync(ct);
 
-        var payerExpenses = await context.Expenses
-            .Where(e => e.PayerId == userId)
-            .Select(e => new { e.Id, e.Amount })
-            .ToListAsync(ct);
+        if (userId == default)
+        {
+            return Result<List<BalanceResponse>>.Failure(new Error
+            {
+                Title = "Balance error",
+                Message = "User not found",
+                Type = Shared.Results.Enums.ErrorType.NotFound
+            });
+        }
 
-        var debtorExpenses = await context.UsersExpenses
-            .Where(e => e.DebtorId == userId && !payerExpenses.Select(e => e.Id).Contains(e.ExpenseId))
-            .Include(e => e.Expense)
-            .ToListAsync(ct);
-
-        var userDebtsToMe = await context.UsersExpenses
-            .Where(e => payerExpenses.Select(e => e.Id).Contains(e.ExpenseId) && e.DebtorId != userId)
-            .GroupBy(e => e.DebtorId)
+        var balancesFromDb = await context.UsersExpenses
+            .Where(ue => (ue.Expense!.PayerId == userId && ue.DebtorId != userId) ||
+                         (ue.DebtorId == userId && ue.Expense!.PayerId != userId))
+            .Select(ue => new
+            {
+                OtherUserId = ue.Expense!.PayerId == userId ? ue.DebtorId : ue.Expense.PayerId,
+                Credit = ue.Expense.PayerId == userId ? ue.AmountOwed : 0,
+                Debt = ue.DebtorId == userId ? ue.AmountOwed : 0
+            })
+            .GroupBy(x => x.OtherUserId)
             .Select(g => new
             {
                 UserId = g.Key,
-                Amount = g.Sum(e => e.AmountOwed)
+                TotalBalance = g.Sum(x => x.Credit) - g.Sum(x => x.Debt)
             })
             .ToListAsync(ct);
 
-        var myDebtsToOthers = debtorExpenses
-            .GroupBy(e => e.Expense!.PayerId)
-            .Select(g => new
-            {
-                UserId = g.Key,
-                Amount = g.Sum(e => e.AmountOwed)
-            }).ToList();
+        var otherUserIds = balancesFromDb.Select(b => b.UserId).ToList();
 
-        var allUserIds = userDebtsToMe.Select(x => x.UserId)
-            .Union(myDebtsToOthers.Select(x => x.UserId))
-            .ToList();
-
+        // Recuperiamo solo gli username strettamente necessari in un'unica query
         var usernames = await context.Users
-            .Where(u => allUserIds.Contains(u.Id))
+            .Where(u => otherUserIds.Contains(u.Id))
             .ToDictionaryAsync(u => u.Id, u => u.Username, cancellationToken: ct);
 
-        var finalBalances = allUserIds.Select(id =>
+        // Mappatura finale in memoria (estremamente leggera)
+        var finalBalances = balancesFromDb.Select(b => new BalanceResponse
         {
-            var credit = userDebtsToMe.FirstOrDefault(x => x.UserId == id)?.Amount ?? 0;
-            var debt = myDebtsToOthers.FirstOrDefault(x => x.UserId == id)?.Amount ?? 0;
-
-            return new BalanceResponse
-            {
-                Username = usernames[id],
-                Amount = credit - debt
-            };
+            Username = usernames.GetValueOrDefault(b.UserId, "Unknown"),
+            Amount = b.TotalBalance
         }).ToList();
-
 
         return Result<List<BalanceResponse>>.Success(finalBalances);
     }
