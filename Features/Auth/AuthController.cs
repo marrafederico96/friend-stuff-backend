@@ -34,7 +34,7 @@ namespace FriendStuff.Features.Auth
                 {
                     HttpOnly = true,
                     Secure = true,
-                    SameSite = SameSiteMode.Strict,
+                    SameSite = SameSiteMode.None,
                     Expires = DateTimeOffset.UtcNow.AddDays(14),
                     Path = "api/Auth/Refresh"
                 });
@@ -42,7 +42,7 @@ namespace FriendStuff.Features.Auth
                 return Ok(new { jwt = accessToken });
             }
 
-            var error = new Error{ Title="Auth error", Message ="Wrong credentials", Type= ErrorType.Unauthorized};
+            var error = new Error { Title = "Auth error", Message = "Wrong credentials", Type = ErrorType.Unauthorized };
             return Unauthorized(error);
         }
 
@@ -58,7 +58,7 @@ namespace FriendStuff.Features.Auth
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.Strict,
+                SameSite = SameSiteMode.None,
                 Expires = DateTimeOffset.UtcNow.AddDays(-1),
                 Path = "api/Auth/Refresh"
             });
@@ -81,7 +81,7 @@ namespace FriendStuff.Features.Auth
                 {
                     HttpOnly = true,
                     Secure = true,
-                    SameSite = SameSiteMode.Strict,
+                    SameSite = SameSiteMode.None,
                     Expires = DateTimeOffset.UtcNow.AddDays(14),
                     Path = "api/Auth/Refresh"
                 });
@@ -89,7 +89,7 @@ namespace FriendStuff.Features.Auth
                 return Ok(new { jwt = accessToken });
             }
 
-            var error = new Error{ Title="Auth error", Message ="Wrong credentials", Type= ErrorType.Unauthorized};
+            var error = new Error { Title = "Auth error", Message = "Wrong credentials", Type = ErrorType.Unauthorized };
             return Unauthorized(error);
         }
 
