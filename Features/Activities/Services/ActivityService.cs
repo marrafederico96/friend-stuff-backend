@@ -352,4 +352,26 @@ public class ActivityService(FriendStuffDbContext context, IUserService userServ
         return participants;
     }
 
+    public async Task<Result<string>> SearchUser(string username, CancellationToken ct)
+    {
+        var user = await context.Users
+            .Where(u => u.NormalizedUsername == username.Trim().ToUpperInvariant())
+            .Select(u => u.Username)
+            .FirstOrDefaultAsync();
+
+        if (user == null)
+        {
+            return Result<string>.Failure(new Error
+            {
+                Title = "Search user error",
+                Message = "User not found",
+                Type = ErrorType.NotFound
+            });
+        }
+
+
+        return Result<string>.Success(user);
+
+    }
+
 }
