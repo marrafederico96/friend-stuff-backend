@@ -45,12 +45,10 @@ public class UserService(FriendStuffDbContext context) : IUserService
 
         var otherUserIds = balancesFromDb.Select(b => b.UserId).ToList();
 
-        // Recuperiamo solo gli username strettamente necessari in un'unica query
         var usernames = await context.Users
             .Where(u => otherUserIds.Contains(u.Id))
             .ToDictionaryAsync(u => u.Id, u => u.Username, cancellationToken: ct);
 
-        // Mappatura finale in memoria (estremamente leggera)
         var finalBalances = balancesFromDb.Select(b => new BalanceResponse
         {
             Username = usernames.GetValueOrDefault(b.UserId, "Unknown"),
@@ -58,5 +56,29 @@ public class UserService(FriendStuffDbContext context) : IUserService
         }).ToList();
 
         return Result<List<BalanceResponse>>.Success(finalBalances);
+    }
+
+    public async Task<Result<decimal>> GetPersonalBalance(string username, CancellationToken ct)
+    {
+        var normalizedUsername = username.Trim().ToUpperInvariant();
+
+        var userId = await context.Users
+            .Where(u => u.NormalizedUsername == normalizedUsername)
+            .Select(u => u.Id)
+            .FirstOrDefaultAsync(ct);
+
+        if (userId == default)
+        {
+            return Result<decimal>.Failure(new Error
+            {
+                Title = "Balance error",
+                Message = "User not found",
+                Type = Shared.Results.Enums.ErrorType.NotFound
+            });
+        }
+
+        var personalBalance = await context.UsersExpenses.Where(ue => ue.DebtorId == userId).SumAsync(ue => ue.AmountOwed, cancellationToken: ct);
+        return Result<decimal>.Success(personalBalance);
+
     }
 }

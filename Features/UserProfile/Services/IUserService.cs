@@ -6,4 +6,6 @@ namespace FriendStuff.Features.UserProfile.Services;
 public interface IUserService
 {
     public Task<Result<List<BalanceResponse>>> GenerateUserBalance(string username, CancellationToken ct);
+    public Task<Result<decimal>> GetPersonalBalance(string username, CancellationToken ct);
+
 }
