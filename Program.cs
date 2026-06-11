@@ -1,4 +1,3 @@
-using System.Text;
 using FriendStuff.Data;
 using FriendStuff.Domain.Entities;
 using FriendStuff.Features.Activities.Services;
@@ -14,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
