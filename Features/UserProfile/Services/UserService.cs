@@ -27,12 +27,12 @@ public class UserService(FriendStuffDbContext context) : IUserService
         }
 
         var balancesFromDb = await context.UsersExpenses
-            .Where(ue => (ue.Expense!.PayerId == userId && ue.DebtorId != userId) ||
-                         (ue.DebtorId == userId && ue.Expense!.PayerId != userId))
+            .Where(ue => ue.Expense != null && ((ue.Expense.PayerId == userId && ue.DebtorId != userId) ||
+                         (ue.DebtorId == userId && ue.Expense.PayerId != userId)))
             .Select(ue => new
             {
-                OtherUserId = ue.Expense!.PayerId == userId ? ue.DebtorId : ue.Expense.PayerId,
-                Credit = ue.Expense.PayerId == userId ? ue.AmountOwed : 0,
+                OtherUserId = ue.Expense!.PayerId == userId ? ue.DebtorId : ue.Expense!.PayerId,
+                Credit = ue.Expense!.PayerId == userId ? ue.AmountOwed : 0,
                 Debt = ue.DebtorId == userId ? ue.AmountOwed : 0
             })
             .GroupBy(x => x.OtherUserId)
@@ -77,8 +77,10 @@ public class UserService(FriendStuffDbContext context) : IUserService
             });
         }
 
-        var personalBalance = await context.UsersExpenses.Where(ue => ue.DebtorId == userId).SumAsync(ue => ue.AmountOwed, cancellationToken: ct);
-        return Result<decimal>.Success(personalBalance);
+        decimal personalBalance = await context.UsersExpenses
+            .Where(ue => ue.DebtorId == userId && ue.Expense != null && ue.Expense.Participants.Count() == 1)
+            .SumAsync(ue => ue.AmountOwed, cancellationToken: ct);
 
+        return Result<decimal>.Success(personalBalance);
     }
 }
