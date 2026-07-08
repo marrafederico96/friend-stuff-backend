@@ -82,7 +82,7 @@ public class ExpenseService(FriendStuffDbContext context) : IExpenseService
 
         foreach (var id in userIds)
         {
-            var checkId = await context.UsersActivities.Where(ua => ua.ActivityId == activityId && ua.UserId == id).Select(ua => ua.UserId).FirstOrDefaultAsync();
+            var checkId = await context.UsersActivities.Where(ua => ua.ActivityId == activityId && ua.UserId == id).Select(ua => ua.UserId).FirstOrDefaultAsync(cancellationToken: ct);
             if (checkId == 0)
                 return Result.Failure(new Error
                 {
@@ -137,6 +137,19 @@ public class ExpenseService(FriendStuffDbContext context) : IExpenseService
             .Where(ue => ue.DebtorId == userId && ue.ExpenseId == expenseId)
             .ExecuteDeleteAsync(ct);
 
+        var expenseAmount = await context.Expenses.Where(e => e.Id == expenseId).Select(e => e.Amount).FirstOrDefaultAsync(cancellationToken: ct);
+        var participantsCount = await context.UsersExpenses.Where(ex => ex.ExpenseId == expenseId).CountAsync(cancellationToken: ct);
+
+
+        if (participantsCount > 0)
+        {
+            var newAmount = expenseAmount / participantsCount;
+
+            await context.UsersExpenses
+                .Where(ex => ex.ExpenseId == expenseId)
+                .ExecuteUpdateAsync(setters => setters.SetProperty(ex => ex.AmountOwed, newAmount), ct);
+        }
         return Result.Success("Expense participant removed");
+
     }
 }
